@@ -4,6 +4,7 @@ import { ServoyDefaultComponentsModule } from '../servoydefault/servoydefault.mo
 import { ServoyBootstrapComponentsModule } from '../bootstrapcomponents/servoybootstrap.module';
 import { ServoyBootstrapExtraComponentsModule } from '../bootstrapextracomponents/servoybootstrapextra.module';
 import { ServoyExtraComponentsModule } from '../servoyextra/servoyextra.module';
+import { GlobisComponentsModule } from '../globiscomponents/globiscomponents.module';
 
 /**
  * This module should be generated in the developer and when exporting a WAR
@@ -15,13 +16,15 @@ import { ServoyExtraComponentsModule } from '../servoyextra/servoyextra.module';
     ServoyDefaultComponentsModule,
     ServoyBootstrapComponentsModule,
     ServoyBootstrapExtraComponentsModule,
-    ServoyExtraComponentsModule
+    ServoyExtraComponentsModule,
+    GlobisComponentsModule
   ],
   exports: [
     ServoyDefaultComponentsModule,
     ServoyBootstrapComponentsModule,
     ServoyBootstrapExtraComponentsModule,
-    ServoyExtraComponentsModule
+    ServoyExtraComponentsModule,
+    GlobisComponentsModule
   ]
 })
 export class AllComponentsModule { }
