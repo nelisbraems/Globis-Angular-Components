@@ -10,6 +10,8 @@ import { ServoyBootstrapBaseLabel } from '../../bootstrapcomponents/bts_baselabe
 export class GlobisButton extends ServoyBootstrapBaseLabel<HTMLButtonElement> {    
     @Input() onActionMethodID: (e: Event, data?: any) => void;
     @Input() faIcon: string;
+    @Input() buttonType: string;
+    @Input() toolTipText: string;
 
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef) {
         super(renderer, cdRef);
