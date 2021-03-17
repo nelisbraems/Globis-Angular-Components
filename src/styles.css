@@ -24,3 +24,6 @@
 @import "@uppy/dashboard/dist/style.css";
 @import "window_service/servoy-menu.css";
 @import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+@import "globiscomponents/lib/css/dx.common.css";
+@import "globiscomponents/lib/css/dx.light.css";
