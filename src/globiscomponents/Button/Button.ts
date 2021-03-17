@@ -19,5 +19,10 @@ export class GlobisButton extends ServoyBootstrapBaseLabel<HTMLButtonElement> {
     svyOnInit() {
         console.log('on init');
         super.svyOnInit();
+        if ( this.onDoubleClickMethodID ) {
+            this.renderer.listen( this.elementRef.element.nativeElement, 'dblclick', ( e ) => {
+                this.onDoubleClickMethodID( e );
+            } );
+        }
     }
 }
