@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef, Renderer2, Input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-    selector: 'globiscomponents-CheckBox',
+    selector: 'globiscomponents-Check-Box',
     templateUrl: './CheckBox.html',
     styleUrls: ['./CheckBox.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
