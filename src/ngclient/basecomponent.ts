@@ -130,7 +130,7 @@ export class ServoyBaseComponent<T extends HTMLElement> implements AfterViewInit
     }
 
     protected addAttributes() {
-        if (!this.servoyAttributes) return;
+        if (!this.servoyAttributes || !this.servoyAttributes.length) return;
         this.servoyAttributes.forEach(attribute => this.renderer.setAttribute(this.getNativeElement(), attribute.key, attribute.value));
     }
 }
