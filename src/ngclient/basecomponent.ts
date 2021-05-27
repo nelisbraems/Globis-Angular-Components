@@ -113,6 +113,10 @@ export class ServoyBaseComponent<T extends HTMLElement> implements AfterViewInit
     public getLocationY(): number {
         return (this.getNativeElement().parentNode.parentNode as HTMLElement).offsetTop;
     }
+ 
+    public getMarkupId() {
+        return this.servoyApi.getMarkupId();
+    }
 
     public addViewStateListener(listener: IViewStateListener) {
         this.viewStateListeners.add(listener);
