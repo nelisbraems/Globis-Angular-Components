@@ -15,8 +15,6 @@ export class GlobisButton extends ServoyBootstrapBaseLabel<HTMLButtonElement> {
     @Input() faIcon: string;
     @Input() buttonType: string;
     @Input() toolTipText: string;
-    @Input() css: string;
-    @Input() icon: string;
 
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef) {
         super(renderer, cdRef);
@@ -31,10 +29,5 @@ export class GlobisButton extends ServoyBootstrapBaseLabel<HTMLButtonElement> {
                 this.onDoubleClickMethodID( e );
             } );
         }
-    }
-
-    requestFocus()
-    {
-
     }
 }
