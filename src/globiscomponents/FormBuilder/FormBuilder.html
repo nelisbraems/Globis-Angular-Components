@@ -1,0 +1,10 @@
+<div class="col-md-3" *ngFor="let week of weeks">
+    <div class="drag-container">
+      <div class="section-heading">Week {{week.id}}</div>
+
+      <div cdkDropList id="{{week.id}}" [cdkDropListData]="week.weeklist"
+        [cdkDropListConnectedTo]="connectedTo" class="item-list" (cdkDropListDropped)="drop($event)">
+        <div class="item-box" *ngFor="let weekItem of week.weeklist" cdkDrag>Week {{week.id}} {{weekItem}}</div>
+      </div>
+    </div>
+  </div>

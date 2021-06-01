@@ -8,12 +8,15 @@ import { GlobisTextbox } from './TextBox/textbox';
 import { DxButtonModule, DxCheckBoxModule, DxTextBoxModule } from 'devextreme-angular';
 import { GlobisButton } from './Button/Button';
 import { GlobisCheckBox } from './CheckBox/CheckBox';
+import { GlobisFormBuilder } from './FormBuilder/FormBuilder';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
     declarations: [
       GlobisTextbox,
       GlobisButton,
-      GlobisCheckBox
+      GlobisCheckBox,
+      GlobisFormBuilder
     ],
     providers: [],
     imports: [
@@ -23,12 +26,14 @@ import { GlobisCheckBox } from './CheckBox/CheckBox';
       FormsModule,
       DxTextBoxModule,
       DxButtonModule,
-      DxCheckBoxModule
+      DxCheckBoxModule,
+      DragDropModule
     ],
     exports: [
       GlobisTextbox,
       GlobisButton,
-      GlobisCheckBox
+      GlobisCheckBox,
+      GlobisFormBuilder
     ]
 })
 export class GlobisComponentsModule {
