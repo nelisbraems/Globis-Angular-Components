@@ -10,9 +10,11 @@ import { GlobisButton } from './Button/Button';
 import { GlobisCheckBox } from './CheckBox/CheckBox';
 import { GlobisFormBuilder } from './FormBuilder/FormBuilder';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { GlobisLabel } from './Label/Label';
 
 @NgModule({
     declarations: [
+      GlobisLabel,
       GlobisTextbox,
       GlobisButton,
       GlobisCheckBox,
@@ -30,6 +32,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
       DragDropModule
     ],
     exports: [
+      GlobisLabel,
       GlobisTextbox,
       GlobisButton,
       GlobisCheckBox,
