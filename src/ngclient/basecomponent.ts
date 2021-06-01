@@ -8,6 +8,14 @@ export class ServoyBaseComponent<T extends HTMLElement> implements AfterViewInit
     @Input() name: string;
     @Input() servoyApi: ServoyApi;
     @Input() servoyAttributes: Array<{ key: string; value: string }>;
+    @Input() labelDetails: {labelText: string; labelOrientation: string; labelCss: string; styleClass: string};
+    @Input() icon: string;
+    @Input() css: string;
+    @Input() styleClass: string;
+    @Input() styleClassDataprovider: string;
+    @Input() text: string;
+    @Input() toolTipText: string;
+    @Input() rtlEnabled: boolean;
 
     @ViewChild('element', { static: false }) elementRef: ElementRef<T>;
 
@@ -112,6 +120,10 @@ export class ServoyBaseComponent<T extends HTMLElement> implements AfterViewInit
 
     public getLocationY(): number {
         return (this.getNativeElement().parentNode.parentNode as HTMLElement).offsetTop;
+    }
+ 
+    public getMarkupId() {
+        return this.servoyApi.getMarkupId();
     }
 
     public addViewStateListener(listener: IViewStateListener) {

@@ -1,1 +1,13 @@
-<dx-button #element [text]="text" [icon]="faIcon" [disabled]="!enabled" [hint]="toolTipText" [type]="buttonType"></dx-button>
+<dx-button #element
+    [style]="css"
+    [id]="servoyApi.getMarkupId()+'Button'"
+    [sabloTabseq]="tabSeq"
+    [sabloTabseqConfig]="{container: true}"
+    [text]="text"
+    [icon]="faIcon || icon"
+    [disabled]="!enabled"
+    [hint]="toolTipText"
+    [type]="buttonType"
+    [focusStateEnabled]="true"
+    [disabled]="!enabled || readOnly">
+</dx-button>

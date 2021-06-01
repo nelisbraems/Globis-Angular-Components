@@ -6,11 +6,9 @@ import { Directive, Input, Renderer2, SimpleChanges, ChangeDetectorRef } from '@
 export class ServoyBootstrapBaseComponent<T extends HTMLElement> extends ServoyBaseComponent<T> {
 
     @Input() enabled: boolean;
+    @Input() readOnly: boolean;
     @Input() size: { width: number; height: number };
-    @Input() styleClass: string;
     @Input() tabSeq: number;
-    @Input() text: string;
-    @Input() toolTipText: string;
 
     timeoutID: number;
 

@@ -1,6 +1,29 @@
-<div class="dx-field">
-    <div class="dx-field-label">Checked checkbox</div>
-    <div class="dx-field-value">
-        <dx-check-box [value]="true"></dx-check-box>
+<div class="control-field {{labelDetails && labelDetails.labelOrientation ? labelDetails.labelOrientation : ''}}">
+    <div *ngIf="labelDetails && labelDetails.labelText && labelDetails.labelText.length > 0"
+        class="control-label"
+        [class]="onLabelDoubleClickMethodID ? 'highlight-label ' : '' + !servoyApi.isInDesigner() ? 'dx-field-label ' : ''">
+        <label [style]="labelDetails.labelCss"
+            [for]="servoyApi.getMarkupId() + 'TextArea'"
+            [class]="labelDetails.styleClass"
+            svy-click='onLabelClick($event)'
+            svy-dblclick='onLabelDoubleClickMethodID($event)'
+            svy-rightclick='onLabelRightClickMethodID($event)'>
+            {{labelDetails.labelText}}
+        </label>
     </div>
-</div>
+
+    <div class="control-value">
+         <div [class]="'dx-field bts-check ' + styleClass + ' ' + styleClassDataprovider"></div>
+         <dx-check-box
+            id="servoyApi.getMarkupId()"
+            [(value)]="dataProviderID"
+            svy-autoapply
+            [class]="{'dx-checkbox-icon-edit' : !readOnly, 'dx-checkbox-align-right' : alignment == 1}"
+            [style]="css"
+            (onValueChanged)="onValueChanged($event)"
+            svy-focusgained='onFocusGainedMethodID($event)'
+            svy-rightclick='onRightClickMethodID($event)'
+            svy-focuslost='onFocusLostMethodID($event)'>
+        </dx-check-box>
+    </div>
+ </div>
