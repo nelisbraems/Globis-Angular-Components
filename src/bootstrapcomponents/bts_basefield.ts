@@ -10,7 +10,7 @@ export class ServoyBootstrapBasefield<T extends HTMLElement> extends ServoyBoots
     @Input() onActionMethodID: (e: Event, data?: any) => void;
     @Input() onRightClickMethodID: (e: Event, data?: any) => void;
 
-    @Input() onDataChangeMethodID: (oldValue: any, newValue: any, e: Event) => void;
+    @Input() onDataChangeMethodID: (e: Event, data?: any) => void;
     @Input() onFocusGainedMethodID: (e: Event) => void;
     @Input() onFocusLostMethodID: (e: Event) => void;
 

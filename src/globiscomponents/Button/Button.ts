@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef, Renderer2, Input, ChangeDetectionStrategy, SimpleChanges } from '@angular/core';
-import { ServoyBootstrapBaseLabel } from '../../bootstrapcomponents/bts_baselabel';
+import { GlobisBaseComponent } from '../../ngclient/globisbasecomponent';
 
 
 
@@ -10,8 +10,7 @@ import { ServoyBootstrapBaseLabel } from '../../bootstrapcomponents/bts_baselabe
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class GlobisButton extends ServoyBootstrapBaseLabel<HTMLButtonElement> {
-    @Input() onActionMethodID: (e: Event, data?: any) => void;
+export class GlobisButton extends GlobisBaseComponent<HTMLButtonElement> {
     @Input() faIcon: string;
     @Input() buttonType: string;
     @Input() toolTipText: string;
