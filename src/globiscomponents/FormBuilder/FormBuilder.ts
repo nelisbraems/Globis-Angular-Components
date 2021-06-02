@@ -11,14 +11,17 @@ import * as _ from 'lodash';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLElement> {
-    
+export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> {
+    @Input() result;
+
     _dummySmallColumn = { fields: [], fieldType: 'smallcolumn', styleclass: 'col-sm-12'};
     _dummyFormgroup = { smallcolumns: [this._dummySmallColumn], fieldType: 'form-group', styleclass: 'form-group'};
     nrOfColumns = [{ label: 'One column', amount: 1, colspan: 12, styleclass: 'col-md-12' }, { label: 'Three columns', amount: 3, colspan: 4, styleclass: 'col-md-4' }, { label: 'Four columns', amount: 4, colspan: 3, styleclass: 'col-md-3' }, { label: 'Six columns', amount: 6, colspan: 2, styleclass: 'col-md-2' }, { label: 'Twelve columns', amount: 12, colspan: 1, styleclass: 'col-md-1' }];
     colspanOptions = [{ label: 'One', colspan: 1, styleclass: 'col-md-1' }, { label: 'Two', colspan: 2, styleclass: 'col-md-2' }, { label: 'Three', colspan: 3, styleclass: 'col-md-3' }, { label: 'Four', colspan: 4, styleclass: 'col-md-4' }, { label: 'Five', colspan: 5, styleclass: 'col-md-5' }, { label: 'Six', colspan: 6, styleclass: 'col-md-6' }, { label: 'Seven', colspan: 7, styleclass: 'col-md-7' }, { label: 'Eight', colspan: 8, styleclass: 'col-md-8' }, { label: 'Nine', colspan: 9, styleclass: 'col-md-9' }, { label: 'Ten', colspan: 10, styleclass: 'col-md-10' }, { label: 'Eleven', colspan: 11, styleclass: 'col-md-11' }, { label: 'Twelve', colspan: 12, styleclass: 'col-md-12' }];
 
+    svyMarkupId;
     rows = [];
+    enabledImage;
     formState = null;
     rowStyle = "row";
     limitFields = 8;
@@ -51,6 +54,11 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLElement> {
     
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) doc: Document) {
         super(renderer, cdRef, doc);
+    }
+
+    svyOnInit(){
+        super.svyOnInit();
+        console.log('formbuilder init');
     }
 
     drop(event: CdkDragDrop<string[]>) {
@@ -231,7 +239,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLElement> {
         open: false
     };
 
-    openSidebar(component, row, rowcolumn, formgroup, smallcolumn) {
+    openSidebar(component, row?, rowcolumn?, formgroup?, smallcolumn?) {
         this.row = row;
         this.rowcolumn = rowcolumn;
         this.formgroup = formgroup;
@@ -516,7 +524,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLElement> {
         this.showDataproviderProperties(component, _dataproviderProperty, properties, isNewColumn);
     }
     
-    showDataproviderProperties(component, _dataproviderProperty, properties, isNewColumn) {
+    showDataproviderProperties(component, _dataproviderProperty, properties, isNewColumn?) {
         if(!component.isNewField && _dataproviderProperty['disabled'] && !this.listDesignMode && component.fieldType && component.fieldType !== 'gridcolumn' && !this.isDeveloper)
             return;
         // needed to provide this as a scope variable since the selector component has three dataprovider values, we need to know which value to set on api.dataProviderProperties	
@@ -1142,7 +1150,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLElement> {
             }, 500);
     }
     
-    findSearchTabFields($event) {
+    findSearchTabFields() {
         setTimeout(function() {
             this.initFilteredTabFields(this.model.searchTabFieldsValue);
         }, 500);

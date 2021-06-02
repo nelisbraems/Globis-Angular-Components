@@ -6,7 +6,7 @@
           <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchValue" (change)="findSearchFilteredFields()" />
         </div>
         <ul ui-sortable="sortableSidebar" [(ngModel)]="filteredFields" class="filteredFieldsDnd filteredFields dnd_fields">
-          <li *ngFor="let field of filteredFields" class="item" title="{{field.name}}">
+          <li *ngFor="let field of filteredFields" class="item" [title]="field.name">
             <span>			
               <i *ngIf="field.fieldType ==='label'" class="fa fa-font"></i>
               <i *ngIf="field.fieldType ==='textbox'" class="fa fa-text-width"></i>
@@ -22,7 +22,7 @@
         <i *ngIf="field.fieldType ==='dashboard'" class="fa fa-chart-pie"></i>
         <i *ngIf="field.fieldType ==='trafficlight'" class="fa fa-traffic-light"></i>
             </span>
-            {{field.name }} <i class="fa fa-times delete-icon" (click)="removeFieldFromSidebar(field, filteredFields, $index)"></i>
+            {{field.name }} <!--i class="fa fa-times delete-icon" (click)="removeFieldFromSidebar(field, filteredFields, $index)"></i-->
           </li>
         </ul>
       <div class="formbuilder_fieldsPaging">		
@@ -33,10 +33,10 @@
           <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchTabFieldsValue" (change)="findSearchTabFields()" />
         </div>      
         <ul [hidden]="isTabsListCollapsed" class="filteredFieldsDnd filteredFields newFieldsDnd dnd_fields">
-          <li *ngFor="let tab of tabsWithFields; trackBy: trackByIndex;let $tabIndex = index" class="item" title="{{tab.name}}">
+          <li *ngFor="let tab of tabsWithFields; trackBy: trackByIndex;let $tabIndex = index" class="item" [title]="tab.name">
             <p (click)="toggleTabFieldsOpened($tabIndex)">{{tab.text}} <i class="fa fa-chevron-down m-b-10" *ngIf="showTabFieldsIndex === $tabIndex"></i><i class="fa fa-chevron-right m-b-10" *ngIf="showTabFieldsIndex !== $tabIndex"></i> </p>          
             <ul [hidden]="showTabFieldsIndex !== $tabIndex" ui-sortable="sortableTabFields" [(ngModel)]="filteredTabFields" class="filteredFieldsDnd filteredFields newFieldsDnd dnd_fields">
-              <li *ngFor="let field of filteredTabFields; trackBy: trackByIndex;let $fieldIndex = index" class="item" title="{{field.name}}">
+              <li *ngFor="let field of filteredTabFields; trackBy: trackByIndex;let $fieldIndex = index" class="item" [title]="field.name">
                 <span>
                   <i *ngIf="field.fieldType ==='label'" class="fa fa-font"></i>
                   <i *ngIf="field.fieldType ==='textbox'" class="fa fa-text-width"></i>
@@ -62,7 +62,7 @@
           
       <p class="addRowDivider" (click)="isNewFieldsListCollapsed = !isNewFieldsListCollapsed"> NEW FIELD <i class="fa fa-chevron-down" *ngIf="!isNewFieldsListCollapsed"></i><i class="fa fa-chevron-right m-b-10" *ngIf="isNewFieldsListCollapsed"></i></p>	
         <ul [hidden]="isNewFieldsListCollapsed" ui-sortable="sortableNewFields" [(ngModel)]="newFields" class="filteredFields newFieldsDnd dnd_fields">
-          <li *ngFor="let field of newFields; trackBy: trackByIndex" class="item" title="{{field.name}}">
+          <li *ngFor="let field of newFields; trackBy: trackByIndex" class="item" [title]="field.name">
             <span>
               <i *ngIf="field.fieldType ==='label'" class="fa fa-font"></i>
               <i *ngIf="field.fieldType ==='textbox'" class="fa fa-text-width"></i>
@@ -103,13 +103,13 @@
         </p>
       </div>
       <div class="col-md-11 sortableRows" [(ngModel)]="rows" ui-sortable="sortableRows" style="padding: 15px 0 0 35px;">
-        <div *ngFor="let row of rows; trackBy: trackByIndex;let $rowIndex = index" class="{{row.styleclass}} sortableRow">
+        <div *ngFor="let row of rows; trackBy: trackByIndex;let $rowIndex = index" [ngClass]="row.styleclass" class="sortableRow">
           <div class="fb-sortable-row-wrapper">
               <span *ngIf="!tabSequenceMode" class="fa-stack fa-sm formbuilder_header-options formbuilder_rowOptions">
                     <i class="fa fa-gear sortableRowOptions sortableRowHandle" (click)="openSidebar(row, row)"></i>
                  </span>          
             <div ui-sortable="sortableColumns" class="sortableColumns" [(ngModel)]="row.columns">
-              <div *ngFor="let rowcolumn of row.columns; trackBy: trackByIndex;let $rowColIndex = index" class="{{rowcolumn.styleclass}} sortableColumn">
+              <div *ngFor="let rowcolumn of row.columns; trackBy: trackByIndex;let $rowColIndex = index" [ngClass]="rowcolumn.styleclass" class="sortableColumn">
                   <div *ngIf="!tabSequenceMode" class="formbuilder_columnsettings">
                       <span class="fa-stack fa-sm formbuilder_header-options formbuilder_columnOptions">
                         <i class="fa fa-square fa-stack-2x formbuilder-stack"></i>
@@ -118,7 +118,7 @@
                     </div>
                 <div class="fb-sortable-col-wrapper">
                   <div ui-sortable="sortableFormGroups" [(ngModel)]="rowcolumn.formgroups" class="sortableFormGroups">
-                    <div *ngFor="let fgroup of rowcolumn.formgroups; trackBy: trackByIndex;let $fgroupIndex = index" class="{{fgroup.styleclass}} sortableFormGroup">
+                    <div *ngFor="let fgroup of rowcolumn.formgroups; trackBy: trackByIndex;let $fgroupIndex = index" [ngClass]="fgroup.styleclass" class="sortableFormGroup">
                     
                         <div *ngIf="!tabSequenceMode" class="formbuilder_formgroupsettings">
                         <span class="fa-stack fa-sm formbuilder_header-options">
@@ -129,7 +129,7 @@
                         
                       <div class="fb-sortable-formgroup-wrapper">
                         <div ui-sortable="sortableSmallColumns" [(ngModel)]="fgroup.smallcolumns" class="sortableSmallColumns">
-                          <div *ngFor="let column of fgroup.smallcolumns; trackBy: trackByIndex;let $smallColumnIndex = index" class="{{column.styleclass}} sortableSmallColumn">
+                          <div *ngFor="let column of fgroup.smallcolumns; trackBy: trackByIndex;let $smallColumnIndex = index" [ngClass]="column.styleclass" class="sortableSmallColumn">
                               <div *ngIf="!tabSequenceMode" class="formbuilder_smallcolumnsettings">
                                   <span class="fa-stack fa-sm formbuilder_header-options">
                                     <i class="fa fa-square fa-stack-2x formbuilder-stack"></i>
@@ -138,7 +138,7 @@
                               </div>
                             <div class="fb-sortable-smallcol-wrapper">                            
                               <div ui-sortable="sortableFields" [(ngModel)]="column.fields" class="sortableFields">
-                                <div *ngFor="let field of column.fields; trackBy: trackByIndex" class="sortableField">
+                                <div *ngFor="let field of column.fields; trackBy: trackByIndex; let $index = index" class="sortableField">
                                   <div *ngIf="!tabSequenceMode" class="formbuilder_fieldsettings">                                
                                   <span class="fa-stack fa-sm formbuilder_header-options field-settings formbuilder_fieldOptions">
                                     <i class="fa fa-square fa-stack-2x"></i>
@@ -150,13 +150,13 @@
                                   </span>
                                   </div>
                                   <div class="formbuilder_field" [ngClass]='{"tabseq-allowevents": tabSequenceMode}' *ngIf="field.fieldType === 'checkbox'">
-                                    <div *ngIf="tabSequenceMode" class="tabsequenceMode {{field.tabSeqSetClass}}">
-                                      <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)" title="Click to set value to {{maxTabsequence+1}}"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
+                                    <div *ngIf="tabSequenceMode" class="tabsequenceMode" [ngClass]="field.tabSeqSetClass">
+                                      <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
                                       <input *ngIf="field.editTabseqInline" [(ngModel)]="field.tabSeq" /><i *ngIf="field.editTabseqInline" (click)="confirmInlineTabseq(field)" class="fa fa-check"> </i> 
                                         <i class="fa fa-times" (click)="clearFieldTabseq(field)"></i>
                                     </div>
                                     <div class="formbuilder_form-group">
-                                      <div class="control-field" [class]="getFieldPropertyValue(field, 'label_orientation')">
+                                      <div class="control-field" [ngClass]="getFieldPropertyValue(field, 'label_orientation')">
                                       <div class="control-label"  *ngIf="getFieldPropertyValue(field, 'label_orientation')">
                                           <label [ngClass]="field.labelDetails[0].styleClass" [style]="field.label_css">{{getFieldPropertyValue(field, 'translated_i18n')}}</label>
                                         </div>
@@ -170,79 +170,79 @@
                                     </div>                  
                                   </div>
                                   <div class="formbuilder_field" [ngClass]='{"tabseq-allowevents": tabSequenceMode}' *ngIf="field.fieldType === 'textbox'">
-                                  <div *ngIf="tabSequenceMode" class="tabsequenceMode {{field.tabSeqSetClass}}">
-                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)" title="Click to set value to {{maxTabsequence+1}}"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
+                                  <div *ngIf="tabSequenceMode" class="tabsequenceMode" [ngClass]="field.tabSeqSetClass">
+                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
                                     <input *ngIf="field.editTabseqInline" [(ngModel)]="field.tabSeq" /><i *ngIf="field.editTabseqInline" (click)="confirmInlineTabseq(field)" class="fa fa-check"> </i> 
                                       <i class="fa fa-times" class="fa fa-check"></i>
                                   </div>
                                     <div class="formbuilder_form-group" [ngClass]='{"tabseq-hidefield": tabSequenceMode}'>
-                                      <div class="control-field" [class]="getFieldPropertyValue(field, 'label_orientation')">
+                                      <div class="control-field" [ngClass]="getFieldPropertyValue(field, 'label_orientation')">
                                       <div class="control-label"  *ngIf="getFieldPropertyValue(field, 'label_orientation')">
                                           <label [ngClass]="field.labelDetails[0].styleClass" [style]="field.label_css">{{getFieldPropertyValue(field, 'translated_i18n')}}</label>
                                         </div>
                                       <div class="control-value">						
-                                          <input [dblclick]="showDataproviderProperties(field, field.properties, false)" [style]="field.css" class="bts-textbox form-control" placeholder="{{getFieldPropertyValue(field, 'dataprovider')}}" />
+                                          <input (dblclick)="showDataproviderProperties(field, field.properties, false)" [style]="field.css" class="bts-textbox form-control" placeholder="{{getFieldPropertyValue(field, 'dataprovider')}}" />
                                       </div>
                                       </div>
                                     </div>
                                   </div>
                                   <div class="formbuilder_field" [ngClass]='{"tabseq-allowevents": tabSequenceMode}' *ngIf="field.fieldType === 'label'">
-                                    <div class="formbuilder_form-group {{field.styleClass}}">
-                                      <span [dblclick]="showDataproviderProperties(field, field.properties, false)" *ngIf="!field.text" [style]="field.css" dx-field-label="true" [innerHTML]="field.dataprovider.value"></span>
-                                      <span *ngIf="field.text && field.text.indexOf('i18n') == -1" class="{{field.styleClass}}" dx-field-label="true" [innerHTML]="field.text"></span>
-                                      <span *ngIf="field.text && field.text.indexOf('i18n') > -1" class="{{field.styleClass}}" dx-field-label="true">{{getFieldPropertyValue(field, 'translated_i18n')}}</span>
+                                    <div class="formbuilder_form-group" [ngClass]="field.styleClass">
+                                      <span (dblclick)="showDataproviderProperties(field, field.properties, false)" *ngIf="!field.text" [style]="field.css" dx-field-label="true" [innerHTML]="field.dataprovider.value"></span>
+                                      <span *ngIf="field.text && field.text.indexOf('i18n') == -1" [ngClass]="field.styleClass" dx-field-label="true" [innerHTML]="field.text"></span>
+                                      <span *ngIf="field.text && field.text.indexOf('i18n') > -1" [ngClass]="field.styleClass" dx-field-label="true">{{getFieldPropertyValue(field, 'translated_i18n')}}</span>
                                     </div>
                                   </div>
                                   <div class="formbuilder_field" [ngClass]='{"tabseq-allowevents": tabSequenceMode}' *ngIf="field.fieldType === 'textarea'">
-                                  <div *ngIf="tabSequenceMode" class="tabsequenceMode {{field.tabSeqSetClass}}">
-                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)" title="Click to set value to {{maxTabsequence+1}}"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
+                                  <div *ngIf="tabSequenceMode" class="tabsequenceMode" [ngClass]="field.tabSeqSetClass">
+                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
                                     <input *ngIf="field.editTabseqInline" [(ngModel)]="field.tabSeq" /><i *ngIf="field.editTabseqInline" (click)="confirmInlineTabseq(field)" class="fa fa-check"> </i> 
                                       <i class="fa fa-times" class="fa fa-check"></i>
                                   </div>
                                     <div class="formbuilder_form-group">
-                                      <div class="control-field" [class]="getFieldPropertyValue(field, 'label_orientation')">
+                                      <div class="control-field" [ngClass]="getFieldPropertyValue(field, 'label_orientation')">
                                         <div class="control-label"  *ngIf="getFieldPropertyValue(field, 'label_orientation')">
                                           <label [ngClass]="field.labelDetails[0].styleClass" [style]="field.label_css">{{getFieldPropertyValue(field, 'translated_i18n')}}</label>
                                         </div>
                                         <div class="control-value">						  
-                                            <div [dblclick]="showDataproviderProperties(field, field.properties, false)" [style]="field.css}}; height: {{getFieldPropertyValue(field, 'height')}}px;" dx-text-area="{hint: field.name, disabled: true}" class="form-control" rows="3"></div>
+                                            <div (dblclick)="showDataproviderProperties(field, field.properties, false)" [style]="{height: getFieldPropertyValue(field, 'height')}" dx-text-area="{hint: field.name, disabled: true}" class="form-control" rows="3"></div>
                                         </div>                    
                                     </div>
                                     </div>
                                   </div>
                                   <div class="formbuilder_field" [ngClass]='{"tabseq-allowevents": tabSequenceMode}' *ngIf="field.fieldType === 'dropdown'">
-                                  <div *ngIf="tabSequenceMode" class="tabsequenceMode {{field.tabSeqSetClass}}">
-                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)" title="Click to set value to {{maxTabsequence+1}}"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
+                                  <div *ngIf="tabSequenceMode" class="tabsequenceMode" [ngClass]="field.tabSeqSetClass">
+                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
                                     <input *ngIf="field.editTabseqInline" [(ngModel)]="field.tabSeq" /><i *ngIf="field.editTabseqInline" (click)="confirmInlineTabseq(field)" class="fa fa-check"> </i> 
                                       <i class="fa fa-times" class="fa fa-check"></i>
                                   </div>
                                     <div class="formbuilder_form-group">
-                                        <div class="control-field" [class]="getFieldPropertyValue(field, 'label_orientation')">
+                                        <div class="control-field" [ngClass]="getFieldPropertyValue(field, 'label_orientation')">
                                           <div class="control-label"  *ngIf="getFieldPropertyValue(field, 'label_orientation')">
                                             <label [ngClass]="field.labelDetails[0].styleClass" [style]="field.label_css">{{getFieldPropertyValue(field, 'translated_i18n')}}</label>
                                           </div>
                                           <div class="control-value">
-                                              <div [dblclick]="showDataproviderProperties(field, field.properties, false)" disabled class="bts-select" [style]="field.css" dx-select-box="{disabled: true}"> </div>
+                                              <div (dblclick)="showDataproviderProperties(field, field.properties, false)" disabled class="bts-select" [style]="field.css" dx-select-box="{disabled: true}"> </div>
                                           </div>                    
                                       </div>
                                     </div>
                                   </div>
                                   <div class="formbuilder_field" [ngClass]='{"tabseq-allowevents": tabSequenceMode}' *ngIf="field.fieldType === 'button'">
-                                  <div *ngIf="tabSequenceMode" class="tabsequenceMode {{field.tabSeqSetClass}}">
-                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)" title="Click to set value to {{maxTabsequence+1}}"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
+                                  <div *ngIf="tabSequenceMode" class="tabsequenceMode" [ngClass]="field.tabSeqSetClass">
+                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
                                     <input *ngIf="field.editTabseqInline" [(ngModel)]="field.tabSeq" /><i *ngIf="field.editTabseqInline" (click)="confirmInlineTabseq(field)" class="fa fa-check"> </i> 
                                       <i class="fa fa-times" class="fa fa-check"></i>
                                   </div>
                                     <div disabled class="bts-button" [style]="field.css" dx-button="button">{{field.text}} </div>
                                   </div>
                                   <div class="formbuilder_field" [ngClass]='{"tabseq-allowevents": tabSequenceMode}' *ngIf="field.fieldType === 'switch'">
-                                  <div *ngIf="tabSequenceMode" class="tabsequenceMode {{field.tabSeqSetClass}}">
-                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)" title="Click to set value to {{maxTabsequence+1}}"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
+                                  <div *ngIf="tabSequenceMode" [ngClass]="field.tabSeqSetClass"class="tabsequenceMode">
+                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
                                     <input *ngIf="field.editTabseqInline" [(ngModel)]="field.tabSeq" /><i *ngIf="field.editTabseqInline" (click)="confirmInlineTabseq(field)" class="fa fa-check"> </i> 
                                     <i class="fa fa-times" class="fa fa-check"></i>
                                   </div>
                                     <div class="formbuilder_form-group">
-                                        <div class="control-field" [class]="getFieldPropertyValue(field, 'label_orientation')">
+                                        <div class="control-field" [ngClass]="getFieldPropertyValue(field, 'label_orientation')">
                                           <div class="control-label"  *ngIf="getFieldPropertyValue(field, 'label_orientation')">
                                             <label [ngClass]="field.labelDetails[0].styleClass" [style]="field.label_css">{{getFieldPropertyValue(field, 'translated_i18n')}}</label>
                                           </div>
@@ -257,8 +257,8 @@
                                   </div>
                                   <div class="formbuilder_field formbuilder_imagefield" *ngIf="field.fieldType === 'image'">
                                     <div class="control-field" [ngClass]="enabledImage">
-                                      <div id="{{::field.svyMarkupId}}Image" class={{field.styleClass}}>
-                                          <img [style]="field.css" [src]="{{field.ImagePath != undefined ? field.ImagePath : ''}}">
+                                      <div attr.id="{{field.svyMarkupId}}+Image" [ngClass]="field.styleClass">
+                                          <img [style]="field.css" [src]="field.ImagePath != undefined ? field.ImagePath : ''">
                                       </div>
                                     </div>
                                   </div>
@@ -268,31 +268,31 @@
                                               [src]="field.path"> </iframe></div>
                                   </div>
                                   <div class="formbuilder_field" [ngClass]='{"tabseq-allowevents": tabSequenceMode}' *ngIf="field.fieldType === 'calendar'">
-                                    <div *ngIf="tabSequenceMode" class="tabsequenceMode {{field.tabSeqSetClass}}">
-                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)" title="Click to set value to {{maxTabsequence+1}}"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
+                                    <div *ngIf="tabSequenceMode" class="tabsequenceMode" [ngClass]="field.tabSeqSetClass">
+                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
                                     <input *ngIf="field.editTabseqInline" [(ngModel)]="field.tabSeq" /><i *ngIf="field.editTabseqInline" (click)="confirmInlineTabseq(field)" class="fa fa-check"> </i> 
                                       <i class="fa fa-times" class="fa fa-check"></i>
                                   </div>
                                     <div class="formbuilder_form-group">
-                                        <div class="control-field" [class]="getFieldPropertyValue(field, 'label_orientation')">
+                                        <div class="control-field" [ngClass]="getFieldPropertyValue(field, 'label_orientation')">
                                           <div class="control-label"  *ngIf="getFieldPropertyValue(field, 'label_orientation')">
                                             <label [ngClass]="field.labelDetails[0].styleClass" [style]="field.label_css">{{getFieldPropertyValue(field, 'translated_i18n')}}</label>
                                           </div>
                                           <div class="control-value">
-                                              <div [dblclick]="showDataproviderProperties(field, field.properties, false)" disabled="true" [style]="field.css" dx-date-box="{disabled: true, placeholder: getFieldPropertyValue(field, 'dataprovider')}"></div>
+                                              <div (dblclick)="showDataproviderProperties(field, field.properties, false)" disabled="true" [style]="field.css" dx-date-box="{disabled: true, placeholder: getFieldPropertyValue(field, 'dataprovider')}"></div>
                                           </div>                    
                                       </div>
                                     </div>
                                   </div>
                                   <div class="formbuilder_field" [ngClass]='{"tabseq-allowevents": tabSequenceMode}' *ngIf="field.fieldType === 'selector'">
                                     <div [ngClass]="'svy-layoutcontainer'" class="input-group svy-layoutcontainer">
-                                    <div *ngIf="tabSequenceMode" class="tabsequenceMode {{field.tabSeqSetClass}}">
-                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)" title="Click to set value to {{maxTabsequence+1}}"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
+                                    <div *ngIf="tabSequenceMode" class="tabsequenceMode" [ngClass]="field.tabSeqSetClass">
+                                    <span *ngIf="!field.editTabseqInline"  (click)="setTabsequence(field)"> {{field.tabSeq === undefined ? -2 : field.tabSeq}} </span> <i *ngIf="!field.editTabseqInline" (click)="setFieldTabseqInline(field)" class="fa fa-edit"></i>
                                     <input *ngIf="field.editTabseqInline" [(ngModel)]="field.tabSeq" /><i *ngIf="field.editTabseqInline" (click)="confirmInlineTabseq(field)" class="fa fa-check"> </i> 
                                       <i class="fa fa-times" class="fa fa-check"></i>
                                   </div>
                                       <div class="formbuilder_form-group">
-                                      <div class="control-field" [class]="getFieldPropertyValue(field, 'label_orientation')">
+                                      <div class="control-field" [ngClass]="getFieldPropertyValue(field, 'label_orientation')">
                                         <div class="control-label"  *ngIf="getFieldPropertyValue(field, 'label_orientation')">
                                           <label [ngClass]="field.labelDetails[0].styleClass" [style]="field.label_css">{{getFieldPropertyValue(field, 'translated_i18n')}}</label>
                                         </div>
@@ -320,12 +320,12 @@
                                         <span>No tabs defined</span>
                                       </label>
                                     </div>
-                                    <uib-tabset active="field.activeTabIndex" class='bts-tabpanel {{field.styleClass}}' 
+                                    <!-- uib-tabset active="field.activeTabIndex" class='bts-tabpanel' 
                                       [ngClass]='{"vertical-tabs": field.orientation == "vertical"}' style="position: relative;">
                                         <uib-tab *ngFor="let tab of field.tabs">
                                           <uib-tab-heading (click)="openTabProperties(row, tab)">					      	
                                             <span ng-bind='tab.text'></span>
-                                            <span><input  (click)="$event.stopPropagation();" type="checkbox" [(ngModel)]="tab.include"/></span>
+                                            <span><input  (click)="$event.stopPropagation()" type="checkbox" [(ngModel)]="tab.include"/></span>
                                           </uib-tab-heading>
                                           <div class="tabpane" [ngClass]='tab.containerStyleClass'>							
                                           </div>
@@ -337,17 +337,17 @@
                                           <div class="tabpane" [ngClass]='tab.containerStyleClass'>							
                                           </div>
                                         </uib-tab>
-                                    </uib-tabset>
+                                    </uib-tabset -->
                                   </div>
                                   <div class="formbuilder_field grid" *ngIf="field.fieldType === 'grid'">
-                                    <div id="{{::svyMarkupId}}">
-                                      <div id="{{field.uniqueID}}" dx-data-grid="field.gridOptions">                     
+                                    <div [attr.id]="svyMarkupId">
+                                      <div [attr.id]="field.uniqueID" dx-data-grid="field.gridOptions">                     
                                       </div>                  
                                     </div>
                                   </div>
                                   <div class="formbuilder_field grid" *ngIf="field.fieldType === 'dashboard'">
                                     <div>
-                                      <div id="cumulio-{{field.uniqueID}}">                     
+                                      <div attr.id="cumulio-{{field.uniqueID}}">                     
                                       </div>                  
                                     </div>
                                   </div>
