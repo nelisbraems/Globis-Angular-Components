@@ -483,9 +483,11 @@
           <p class="addRowDivider" (click)="isNewFieldsListCollapsed = !isNewFieldsListCollapsed"> NEW FIELD <i
               class="fa fa-chevron-down" *ngIf="!isNewFieldsListCollapsed"></i><i class="fa fa-chevron-right m-b-10"
               *ngIf="isNewFieldsListCollapsed"></i></p>
-          <ul [hidden]="isNewFieldsListCollapsed" ui-sortable="sortableNewFields" [(ngModel)]="newFields"
-            class="filteredFields newFieldsDnd dnd_fields">
-            <li *ngFor="let field of newFields; trackBy: trackByIndex" class="item" [title]="field.name">
+          <ul [hidden]="isNewFieldsListCollapsed" 
+          cdkDropList #sortableNewFieldsList="cdkDropList" [cdkDropListData]="newFields"
+            [cdkDropListConnectedTo]="fieldsConnectedTo" (cdkDropListDropped)="drop($event)"
+          class="filteredFields newFieldsDnd dnd_fields">
+            <li cdkDrag *ngFor="let field of newFields; trackBy: trackByIndex" class="item" [title]="field.name">
               <span>
                 <i *ngIf="field.fieldType ==='label'" class="fa fa-font"></i>
                 <i *ngIf="field.fieldType ==='textbox'" class="fa fa-text-width"></i>

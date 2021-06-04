@@ -60,7 +60,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     searchValue = "";
     searchTabFieldsValue = "";
     listDesignMode = false;
-    isNewFieldsListCollapsed = false;
+    isNewFieldsListCollapsed = true;
     isRowsListCollapsed = false;
     isTabsListCollapsed = true;
     showTabFieldsIndex = -1;
@@ -77,7 +77,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     column;
     tab;
     filteredFields = [];
-    newFields = [];
+    newFields;
     isDeveloper = false;
     currentProperty;
     currentEvent;
@@ -96,7 +96,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     svyOnInit(){
         super.svyOnInit();
         console.log('formbuilder init');
-        this.result = JSON.parse(this.result);
+        /*this.result = JSON.parse(this.result);
         if (this.result.rows) {
             this.rows = this.result.rows;
             this.name = this.result.name;
@@ -108,7 +108,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             this.setFieldsConnectedTo();
         }
         
-        this.initFilteredFields(null);
+        this.initFilteredFields(null);*/
+        
+        this.getStandaloneFormFields().then((fields) => {
+                this.newFields = fields;
+                this.isNewFieldsListCollapsed = false;
+            });
         this.handlerGetIsDeveloper();
     }
     
@@ -127,10 +132,6 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             }
         }
         this.fieldsConnectedTo = _newList;
-    }
-
-    svyOnChanges(changes: SimpleChanges) {
-        console.log(changes);
     }
 
     drop(event: CdkDragDrop<any>) {
@@ -245,9 +246,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         this.isTabsListCollapsed = !this.isTabsListCollapsed;
         if(!this.isTabsListCollapsed && this.startFromName)
         {
-            this.getTabFormFields(this.startFromName).then(function(_tabsWithFields){
+            const promise = this.getTabFormFields(this.startFromName);
+            promise.then((_tabsWithFields) => {
                 this.tabsWithFields = _tabsWithFields;
-                this.initFilteredTabFields(null);
+                if(_tabsWithFields){
+                    this.initFilteredTabFields(null);
+                }
             });
         }
     }
@@ -873,6 +877,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                             result.convertedForm = JSON.parse(result.convertedForm);
                             this.rows = result.convertedForm.rows;
                             this.checkIfAllRowsHaveAllColumns();
+                            this.setFieldsConnectedTo();
                             if(result.convertedForm.gridFields){
                                 //todo: if result.containsGrids
                                 setTimeout(function(){
@@ -920,6 +925,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
 
                         this.rows = dbForm.rows;
                         this.checkIfAllRowsHaveAllColumns();
+                        this.setFieldsConnectedTo();
                         this.copiedJSONRows = _.cloneDeep(dbForm.rows);
                         this.name = dbForm.name;
                         this.allFields = dbForm.fields;
@@ -941,10 +947,6 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             if(result.datasource)
                 this.datasource = result.datasource;
             else this.datasource = null;
-
-            this.getStandaloneFormFields().then(function(fields) {
-                this.newFields = fields;
-            });
         }
     }
 
@@ -1064,10 +1066,6 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             this.gridColumnProperties.caption = model.headerText ? model.headerText : model.dataprovider;
             this.gridColumnProperties.dataprovider_type = model.dataprovider_type;
         }
-        
-        this.getStandaloneFormFields().then(function(fields) {
-            this.newFields = fields;
-        });
     }
 
     getConvertedDataprovider(dataprovider){
@@ -1219,9 +1217,9 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
 
     checkIfRowCanAddColumns(row) {
         var rowColspan = 0;
-        _.forEach(row.columns, function(column) {
-                rowColspan += _.find(this.colspanOptions, function(col){ return column.styleclass.indexOf(col.styleclass) > -1 }).colspan;
-            })
+        row.columns.forEach(column => {
+            rowColspan += _.find(this.colspanOptions, function(col){ return column.styleclass.indexOf(col.styleclass) > -1 }).colspan;
+        });
         row.hasDeletedColumns = rowColspan < 12;
     }
 
@@ -1298,10 +1296,6 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                 }
             }, 500)
         }
-
-        this.getStandaloneFormFields().then(function(fields) {
-            this.newFields = fields;
-        });
     }
     
     mapFoundsetToProperties(component) {
@@ -1614,13 +1608,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         if(this.component.fieldType === 'smallcolumn')
         {
             var _colSmToAdd = 12;
-            _.forEach(this.formgroup.smallcolumns, function(col){
+            this.formgroup.smallcolumns.forEach(col => {
                 var _col_width_string = col.styleclass.substring((this.component.styleclass.indexOf("col-sm-") + 7), (this.component.styleclass.indexOf("col-sm-")+9))
                 if(_col_width_string){
                     _colSmToAdd -= parseInt(_col_width_string);
                 }
             });
-
             if(_colSmToAdd <= 0){
                 return;
             }
