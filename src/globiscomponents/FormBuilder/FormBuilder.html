@@ -161,7 +161,7 @@
                       placeholder="Select or type program">
                     <div class="input-group-append">
                       <button class="btn inputgroup-btn" type="button"
-                        (click)="programProperties(prop.value)" title="Select program"><em
+                        (click)="getHandlerProgramProperties(prop.value)" title="Select program"><em
                           class="fa fa-search"></em></button>
                     </div>
                   </div>
@@ -233,7 +233,7 @@
                     placeholder="{{tab.customViewName ? tab.customViewName : tab.containedForm ? tab.containedForm : 'Select a form'}}"
                     disabled>
                   <div class="input-group-append">
-                    <button class="btn inputgroup-btn" type="button" (click)="tabProperties(false, tab)"
+                    <button class="btn inputgroup-btn" type="button" (click)="getHandlerTabProperties(false, tab)"
                       title="Select translation"><em class="fa fa-search"></em></button>
                   </div>
                 </div>
@@ -242,7 +242,7 @@
                   <input type="text" class="form-control" [(ngModel)]="tab.relationName"
                     placeholder="Select or type translation">
                   <div class="input-group-append">
-                    <button class="btn inputgroup-btn" type="button" (click)="tabProperties(false, tab)"
+                    <button class="btn inputgroup-btn" type="button" (click)="getHandlerTabProperties(false, tab)"
                       title="Select translation"><em class="fa fa-search"></em></button>
                   </div>
                 </div>
@@ -516,7 +516,7 @@
             <button class="btn btn-warning m-t-5" (click)="resetTabsequence()" [hidden]="tabSequenceMode">Reset
               tabsequence</button>
             <button class="btn btn-info m-t-5" (click)="updateFieldProperties()">Update field properties</button>
-            <button class="btn btn-info m-t-5" (click)="showOriginalFormFieldsModal()">Add form fields</button>
+            <button class="btn btn-info m-t-5" (click)="getHandlerShowOriginalFormFieldsModal()">Add form fields</button>
           </p>
         </div>
         <div class="col-md-11 sortableRows" style="padding: 15px 0 0 35px;">
@@ -864,6 +864,8 @@
                                           <span>No tabs defined</span>
                                         </label>
                                       </div>
+                                      <div (click)="openTabProperties(row, tab)">temp click me tab properties</div>
+
                                       <!-- uib-tabset active="field.activeTabIndex" class='bts-tabpanel' 
                                         [ngClass]='{"vertical-tabs": field.orientation == "vertical"}' style="position: relative;">
                                           <uib-tab *ngFor="let tab of field.tabs">

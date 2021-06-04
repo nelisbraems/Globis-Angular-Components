@@ -14,19 +14,41 @@ import * as _ from 'lodash';
 export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> {
     @Input() result;
 
-    _dummySmallColumn = { fields: [], fieldType: 'smallcolumn', styleclass: 'col-sm-12'};
-    _dummyFormgroup = { smallcolumns: [this._dummySmallColumn], fieldType: 'form-group', styleclass: 'form-group'};
-    nrOfColumns = [{ label: 'One column', amount: 1, colspan: 12, styleclass: 'col-md-12' }, { label: 'Three columns', amount: 3, colspan: 4, styleclass: 'col-md-4' }, { label: 'Four columns', amount: 4, colspan: 3, styleclass: 'col-md-3' }, { label: 'Six columns', amount: 6, colspan: 2, styleclass: 'col-md-2' }, { label: 'Twelve columns', amount: 12, colspan: 1, styleclass: 'col-md-1' }];
-    colspanOptions = [{ label: 'One', colspan: 1, styleclass: 'col-md-1' }, { label: 'Two', colspan: 2, styleclass: 'col-md-2' }, { label: 'Three', colspan: 3, styleclass: 'col-md-3' }, { label: 'Four', colspan: 4, styleclass: 'col-md-4' }, { label: 'Five', colspan: 5, styleclass: 'col-md-5' }, { label: 'Six', colspan: 6, styleclass: 'col-md-6' }, { label: 'Seven', colspan: 7, styleclass: 'col-md-7' }, { label: 'Eight', colspan: 8, styleclass: 'col-md-8' }, { label: 'Nine', colspan: 9, styleclass: 'col-md-9' }, { label: 'Ten', colspan: 10, styleclass: 'col-md-10' }, { label: 'Eleven', colspan: 11, styleclass: 'col-md-11' }, { label: 'Twelve', colspan: 12, styleclass: 'col-md-12' }];
-
+    // viewChildren for drag and drop
     @ViewChild('sortableRemovedFieldsList') sortableSBFieldsList;
     @ViewChild('sortableNewFieldsList') sortableNewFieldsList;
     @ViewChild('sortableFieldsList') sortableFieldsList;
     @ViewChild('drawer') drawer;
     fieldsConnectedTo = [];    
 
+    // handlers
+    @Input() getIsDeveloper: () => Promise<boolean>;
+    @Input() getTabFormFields: (startFromFormName: string) => Promise<boolean>;
+    @Input() tabProperties: (isNew: boolean, tab: any) => Promise<boolean>;
+    @Input() programProperties: (program: string) => Promise<boolean>;
+    @Input() valuelistProperties: (valuelist: string) => Promise<boolean>;
+    @Input() i18nProperties: (i18n: string) => Promise<boolean>;
+    @Input() dashboardProperties: (dashboard: string) => Promise<boolean>;
+    @Input() gridFoundsetProperties: (foundset: string) => Promise<boolean>;
+    @Input() eventProperties: (event: string, value: string) => Promise<boolean>;
+    @Input() dataproviderProperties: (component: any, value: string, isNewColumn: boolean) => Promise<boolean>;
+    @Input() loadTabForm: (tab: any) => Promise<boolean>;
+    @Input() getProgramFormFields: (name: string, startFromId: string, startFromName: string) => Promise<any>;
+    @Input() getStandaloneFormFields: () => Promise<any>;
+    @Input() onSaveForm: (event: any, model: any) => Promise<any>;
+    @Input() formStateChanged: (value: boolean) => Promise<boolean>;
+    @Input() showOriginalFormFieldsModal: (name: string, startFromId: string, startFromName: string) => Promise<any>;
+
+    // locals
+    _dummySmallColumn = { fields: [], fieldType: 'smallcolumn', styleclass: 'col-sm-12'};
+    _dummyFormgroup = { smallcolumns: [this._dummySmallColumn], fieldType: 'form-group', styleclass: 'form-group'};
+    nrOfColumns = [{ label: 'One column', amount: 1, colspan: 12, styleclass: 'col-md-12' }, { label: 'Three columns', amount: 3, colspan: 4, styleclass: 'col-md-4' }, { label: 'Four columns', amount: 4, colspan: 3, styleclass: 'col-md-3' }, { label: 'Six columns', amount: 6, colspan: 2, styleclass: 'col-md-2' }, { label: 'Twelve columns', amount: 12, colspan: 1, styleclass: 'col-md-1' }];
+    colspanOptions = [{ label: 'One', colspan: 1, styleclass: 'col-md-1' }, { label: 'Two', colspan: 2, styleclass: 'col-md-2' }, { label: 'Three', colspan: 3, styleclass: 'col-md-3' }, { label: 'Four', colspan: 4, styleclass: 'col-md-4' }, { label: 'Five', colspan: 5, styleclass: 'col-md-5' }, { label: 'Six', colspan: 6, styleclass: 'col-md-6' }, { label: 'Seven', colspan: 7, styleclass: 'col-md-7' }, { label: 'Eight', colspan: 8, styleclass: 'col-md-8' }, { label: 'Nine', colspan: 9, styleclass: 'col-md-9' }, { label: 'Ten', colspan: 10, styleclass: 'col-md-10' }, { label: 'Eleven', colspan: 11, styleclass: 'col-md-11' }, { label: 'Twelve', colspan: 12, styleclass: 'col-md-12' }];
+
     svyMarkupId;
     rows = [];
+    startFromName;
+    startFromId;
     enabledImage;
     formState = null;
     rowStyle = "row";
@@ -40,7 +62,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     isTabsListCollapsed = true;
     showTabFieldsIndex = -1;
     tabSequenceMode = false;
-    model;
+    currentDataproviderProperty;
     allFields;
     tabsWithFields;
     filteredTabFields;
@@ -58,6 +80,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     currentEvent;
     editGridColumnState;
     gridColumnProperties;
+    datasource;
     
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) doc: Document) {
         super(renderer, cdRef, doc);
@@ -73,12 +96,13 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             this.allFields = this.result.fields;
             //checkIfAllRowsHaveAllColumns();
             //$scope.copiedJSONRows = angular.copy(dbForm.rows);
-            //$scope.model.startFromName = dbForm.startFromName;
-            //$scope.model.startFromId = dbForm.startFromId;
+            this.startFromName = this.result.startFromName ? this.result.startFromName : 'ng$logistic_contract_dtl';
+            this.startFromId = this.result.startFromId;
             this.setFieldsConnectedTo();
         }
         
         this.initFilteredFields(null);
+        this.handlerGetIsDeveloper();
     }
     
     setFieldsConnectedTo(){
@@ -133,12 +157,16 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         } else this.rows.push(dummyRow);
     }
 
-    getIsDeveloper() {
-        /*this.handlers.getIsDeveloper().then(function(result) {
-            this.isDeveloper = result;
-        });*/
-    }
-	//this.getIsDeveloper();
+    handlerGetIsDeveloper() {
+        if (this.getIsDeveloper) {
+            const promise = this.getIsDeveloper();
+            promise.then((result) => {
+                this.isDeveloper = result;
+            });
+        } else {
+            this.isDeveloper =  false;
+        }
+    }    
 
     initFilteredFields(filter) {
         var fields = this.allFields;
@@ -162,8 +190,8 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     initFilteredTabFields(filter?) {
         var fields = this.tabsWithFields[this.showTabFieldsIndex].fields;
 
-        if (filter == null && this.model.searchTabFieldsValue.length > 0)
-            filter = this.model.searchTabFieldsValue;
+        if (filter == null && this.searchTabFieldsValue.length > 0)
+            filter = this.searchTabFieldsValue;
 
         if (filter != null) {
             fields = _.filter(fields, function(field) {
@@ -208,12 +236,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     
     showTabs(){
         this.isTabsListCollapsed = !this.isTabsListCollapsed;
-        if(!this.isTabsListCollapsed && this.model.startFromName)
+        if(!this.isTabsListCollapsed && this.startFromName)
         {
-            /*this.handlers.getTabFormFields(this.model.startFromName).then(function(_tabsWithFields){
+            this.getTabFormFields(this.startFromName).then(function(_tabsWithFields){
                 this.tabsWithFields = _tabsWithFields;
-                initFilteredTabFields(null);
-            });*/
+                this.initFilteredTabFields(null);
+            });
         }
     }
     
@@ -235,7 +263,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             if (ui.item.sortable.sourceList[0].className.indexOf('newFieldsDnd') > -1) {
                 var copyField = _.cloneDeep(ui.item.sortable.model);
                 this.setAddComponentFieldValues(copyField);
-                copyField.foundset = this.model.datasource;
+                copyField.foundset = this.datasource;
                 copyField.isNewField = true;
                 copyField.uniqueID = _.cloneDeep(this.getUniqueID());							
                 this.openSidebar(copyField);
@@ -321,12 +349,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         }
     }
 
-    tabProperties(isNew, tab){
-        //handlers.tabProperties(isNew, tab)
+    getHandlerTabProperties(isNew, tab){
+        this.tabProperties(isNew, tab);
     }
 
-    programProperties(value){
-        //handlers.programProperties(property.value)
+    getHandlerProgramProperties(program){
+        this.programProperties(program);
     }
 
     deleteContainer(container){
@@ -409,7 +437,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }
     
     openIncludedTabForm(tab) {
-        this.loadTabForm(tab);
+        this.getHandlerLoadTabForm(tab);
     }
 
     updateFieldName(field) {
@@ -503,17 +531,17 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }
 
     showValueListProperties(name) {
-        //this.handlers.valuelistProperties(name);
+        this.valuelistProperties(name);
     }
 
     showEventProperties(event) {
         this.currentEvent = event;
-        //this.handlers.eventProperties(event.name, event.value);
+        this.eventProperties(event.name, event.value);
     }
 
     showi18nProperties(property) {
         this.currentProperty = property;
-        //this.handlers.i18nProperties(property.value);
+        this.i18nProperties(property.value);
     }
 
     i18nInputChanged(property) {
@@ -527,11 +555,11 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }
 
     showFoundsetProperties(property) {
-        //this.handlers.gridFoundsetProperties(property.value);
+        this.gridFoundsetProperties(property.value);
     }
 
     showDashboardProperties(property){
-        //this.handlers.dashboardProperties(property);
+        this.dashboardProperties(property);
     }
 
     showGridColumnDataprovider(component, _dataproviderProperty, properties, isNewColumn){
@@ -546,8 +574,8 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         if(!component.isNewField && _dataproviderProperty['disabled'] && !this.listDesignMode && component.fieldType && component.fieldType !== 'gridcolumn' && !this.isDeveloper)
             return;
         // needed to provide this as a scope variable since the selector component has three dataprovider values, we need to know which value to set on api.dataProviderProperties	
-        /*this.currentDataproviderProperty = _dataproviderProperty;
-        this.handlers.dataproviderProperties(component, _dataproviderProperty["value"], isNewColumn);*/
+        this.currentDataproviderProperty = _dataproviderProperty;
+        this.dataproviderProperties(component, _dataproviderProperty["value"], isNewColumn);
     }
 
     addGridColumn() {
@@ -631,8 +659,8 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             
     }				
 
-    loadTabForm(tab) {
-        //this.handlers.loadTabForm(tab.containedForm).then(function(res) { });
+    getHandlerLoadTabForm(tab) {
+        this.loadTabForm(tab.containedForm);
     }
 
     openTabProperties(row, tab) {
@@ -644,12 +672,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         this.component = field;
         if(!this.component.tabs)
             this.component.tabs = [];
-        //this.handlers.tabProperties(true, null);
+        this.tabProperties(true, null);
     }
     
     openTabPropertiesModal(isNew, tab){
         this.tab = tab;
-        //this.handlers.tabProperties(isNew, tab);
+        this.tabProperties(isNew, tab);
     }
 
     /*this.api.tabProperties(isNew, tab) {
@@ -723,7 +751,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             } else if (result.properties[i].name === 'name')
                 result.properties[i].value = result.name;
             else if (result.properties[i].name === 'foundset' && result.fieldType === "grid")
-                result.properties[i].value = this.model.datasource;
+                result.properties[i].value = this.datasource;
             else if (result.properties[i].default !== undefined) {
                 result.properties[i].value = result.properties[i].default;
             }
@@ -764,7 +792,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }
 
     initializeFormFields() {
-        this.model.formState = null;
+        this.formState = null;
         this.rows = [];
         this.addRow(_.find(this.nrOfColumns, { amount: 3 }));
         this.initFilteredFields(null);
@@ -772,7 +800,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
 
     /*this.api.setFormName(result) {
         if (result) {
-            this.model.name = result;
+            this.name = result;
         }
     }
 
@@ -787,17 +815,17 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         if (result.form !== null) {
             this.listDesignMode = result.listDesignMode;
             if (result.datasource && result.datasource_mode) {
-                this.model.name = result.name;
-                this.model.formname = result.formname;
+                this.name = result.name;
+                this.formname = result.formname;
                 initializeFormFields();
             }
             // a form can be created by Custom View wizard, then there are no rows or fields yet
             else if (result.name) {
-                this.model.name = result.name;
-                this.model.formname = result.formname;
+                this.name = result.name;
+                this.formname = result.formname;
 
                 if (result.isNewForm || ((!this.allFields || this.allFields.length == 0) && result.custom_view_id)){
-                    this.model.isNewForm = result.isNewForm;
+                    this.isNewForm = result.isNewForm;
                     if((!this.allFields || this.allFields.length == 0) && result.custom_view_id){
                         if(!result.parent_view_id){
                             result.parent_view_id = result.custom_view_id;
@@ -805,12 +833,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                         }
                         
                         result.startFromId = null;
-                        result.startFromName = 'ng$' + this.model.name + '_dtl';
+                        result.startFromName = 'ng$' + this.name + '_dtl';
                     }
                     
                     // save these variables so we can also get the _lst form and we don't always start from the ng$program_lst/dtl
-                    this.model.startFromId = result.startFromId;
-                    this.model.startFromName = result.startFromName;
+                    this.startFromId = result.startFromId;
+                    this.startFromName = result.startFromName;
                     
                     getGridConvertedFormField(rows, gridField){
                         for (var i = 0; i < rows.length; i++) {
@@ -832,8 +860,8 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                         }
                     }
                     
-                    this.handlers.getProgramFormFields(this.model.name, result.startFromId, result.startFromName).then(function(result) {									
-                        this.model.formState = true;
+                    this.getProgramFormFields(this.name, result.startFromId, result.startFromName).then(function(result) {									
+                        this.formState = true;
                         if(result && result.convertedForm){
                             result.convertedForm = JSON.parse(result.convertedForm);
                             this.rows = result.convertedForm.rows;
@@ -865,7 +893,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                         else{
                             this.allFields = result ? result.fields : [];
                             initializeFormFields();		
-                            this.model.formState = true;
+                            this.formState = true;
                         }
                         
                         
@@ -876,7 +904,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                 if (result.form) {
                     var dbForm = JSON.parse(result.form);
                     if (dbForm) {
-                        this.model.formState = false;
+                        this.formState = false;
 
                         if(!checkIfFormGroupStructure(dbForm.rows))
                         {
@@ -886,10 +914,10 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                         this.rows = dbForm.rows;
                         checkIfAllRowsHaveAllColumns();
                         this.copiedJSONRows = _.cloneDeep(dbForm.rows);
-                        this.model.name = dbForm.name;
+                        this.name = dbForm.name;
                         this.allFields = dbForm.fields;
-                        this.model.startFromName = dbForm.startFromName;
-                        this.model.startFromId = dbForm.startFromId;
+                        this.startFromName = dbForm.startFromName;
+                        this.startFromId = dbForm.startFromId;
                     }
                 }
 
@@ -898,16 +926,16 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             
             // set id's or reset them in case the old value needs to be removed
             if(result.custom_view_id)
-                this.model.custom_view_id = result.custom_view_id;
-            else this.model.custom_view_id = null;
+                this.custom_view_id = result.custom_view_id;
+            else this.custom_view_id = null;
             if(result.parent_view_id)
-                this.model.parent_view_id = result.parent_view_id;
-            else this.model.parent_view_id = null;
+                this.parent_view_id = result.parent_view_id;
+            else this.parent_view_id = null;
             if(result.datasource)
-                this.model.datasource = result.datasource;
-            else this.model.datasource = null;
+                this.datasource = result.datasource;
+            else this.datasource = null;
 
-            this.handlers.getStandaloneFormFields().then(function(fields) {
+            this.getStandaloneFormFields().then(function(fields) {
                 this.newFields = fields;
             });
         }
@@ -1030,7 +1058,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             this.gridColumnProperties.dataprovider_type = model.dataprovider_type;
         }
         
-        this.handlers.getStandaloneFormFields().then(function(fields) {
+        this.getStandaloneFormFields().then(function(fields) {
             this.newFields = fields;
         });
     }*/
@@ -1170,7 +1198,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     
     findSearchTabFields() {
         setTimeout(function() {
-            this.initFilteredTabFields(this.model.searchTabFieldsValue);
+            this.initFilteredTabFields(this.searchTabFieldsValue);
         }, 500);
     }
 
@@ -1203,20 +1231,22 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             // switch off tabSequenceMode or it will be loaded when the form gets activated again in design mode.
             this.toggleTabSequenceMode();
         }
-        this.model.isFormEdited = !angular.equals(this.copiedJSONRows, this.rows);
-        this.model.jsEvent = { svyType: 'JSEvent' };
-        this.model.servoyDeveloperSave = servoyDeveloperSave;
-        this.model.listDesignMode = this.listDesignMode;
-        this.handlers.onSaveForm(this.model.jsEvent, this.model).then(function(result) {
+        this.isFormEdited = !angular.equals(this.copiedJSONRows, this.rows);
+        this.jsEvent = { svyType: 'JSEvent' };
+        this.servoyDeveloperSave = servoyDeveloperSave;
+        this.listDesignMode = this.listDesignMode;
+
+        //TODO: refactor this, do not send entire model
+        this.onSaveForm(this.jsEvent, this).then(function(result) {
             if(result){							
-                this.model.parent_view_id = result.parent_view_id;							
-                this.model.custom_view_id = result.custom_view_id;
+                this.parent_view_id = result.parent_view_id;							
+                this.custom_view_id = result.custom_view_id;
             }
                 
-            this.model.isNewForm = false;
+            this.isNewForm = false;
             this.copiedJSONRows = _.cloneDeep(this.rows);
-            this.handlers.formStateChanged(false);
-            this.model.formState = true
+            this.formStateChanged(false);
+            this.formState = true
         });
     }
 
@@ -1238,23 +1268,23 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     this.api.enableDnd(false);
 
     this.$watch('model.rows', function(newValue) {
-            if (this.model.formState === false) {
+            if (this.formState === false) {
                 // loadJSONModel will initialize the model.rows causing this line to trigger
-                this.model.formState = true;
-            } else if (this.model.formState === true) {
-                this.handlers.formStateChanged(true);
-                this.model.formState = null;
+                this.formState = true;
+            } else if (this.formState === true) {
+                this.formStateChanged(true);
+                this.formState = null;
             }
         }, true);
 
     this.api.toggleListDesignMode(custom_view_id, parent_view_id, grid) {
-        this.model.formState = false;
+        this.formState = false;
         this.listDesignMode = true;
         this.rows = [];
-        this.model.parent_view_id = parent_view_id;
-        this.model.custom_view_id = custom_view_id;
-        this.model.startFromName = grid.startFromName;
-        this.model.startFromId = grid.startFromId;
+        this.parent_view_id = parent_view_id;
+        this.custom_view_id = custom_view_id;
+        this.startFromName = grid.startFromName;
+        this.startFromId = grid.startFromId;
         grid.isNewField = true;
         if(custom_view_id){
             if(!checkIfFormGroupStructure(grid.rows))
@@ -1278,7 +1308,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             }, 500)
         }
 
-        this.handlers.getStandaloneFormFields().then(function(fields) {
+        this.getStandaloneFormFields().then(function(fields) {
             this.newFields = fields;
         });
     }*/
@@ -1619,9 +1649,9 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         column.formgroups.push(_.cloneDeep(this._dummyFormgroup));	
     }
 
-    showOriginalFormFieldsModal()
+    getHandlerShowOriginalFormFieldsModal()
     {
-        //this.handlers.showOriginalFormFieldsModal(this.model.name, this.model.startFromId, this.model.startFromName);
+        this.showOriginalFormFieldsModal(this.name, this.startFromId, this.startFromName);
     }
 
     /*this.api.addOriginalFormFields(fields){
