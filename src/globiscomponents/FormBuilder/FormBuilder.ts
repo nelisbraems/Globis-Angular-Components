@@ -48,11 +48,14 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     svyMarkupId;
     rows = [];
     startFromName;
+    copiedJSONRows;
     startFromId;
     enabledImage;
     formState = null;
+    addGridColumnState;
     rowStyle = "row";
     limitFields = 8;
+    maxTabsequence;
     pageNumber = 0;
     searchValue = "";
     searchTabFieldsValue = "";
@@ -81,7 +84,11 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     editGridColumnState;
     gridColumnProperties;
     datasource;
-    
+    formname;
+    custom_view_id;
+    parent_view_id;
+    isNewForm;
+
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) doc: Document) {
         super(renderer, cdRef, doc);
     }
@@ -168,7 +175,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         }
     }    
 
-    initFilteredFields(filter) {
+    initFilteredFields(filter?) {
         var fields = this.allFields;
 
         if (filter == null && this.searchValue.length > 0)
@@ -680,7 +687,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         this.tabProperties(isNew, tab);
     }
 
-    /*this.api.tabProperties(isNew, tab) {
+    public setTabProperties(isNew, tab) {
         if(isNew === "true"){
             tab.include = true;
             tab.enabled = true;
@@ -696,7 +703,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             }
     }
 
-    this.api.dataproviderProperties(result) {
+    public setDataproviderProperties(result) {
         if (result) {
             if(!this.currentDataproviderProperty){
                 this.currentDataproviderProperty = { name: "dataprovider" };
@@ -716,7 +723,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                     this.column.relation = result.relation;
                     this.column.basetable = result.basetable;
                 }
-                setDataprovider(this.column.properties, result.dataprovider, null, this.currentDataproviderProperty);
+                this.setDataprovider(this.column.properties, result.dataprovider, null, this.currentDataproviderProperty);
             }
             else{
                 this.component[this.currentDataproviderProperty["name"]] = result.dataprovider;
@@ -736,10 +743,30 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                     this.component.basetable = result.basetable;
                 }
 
-                setDataprovider(this.component.properties, result.dataprovider, _updateName, this.currentDataproviderProperty);
+                this.setDataprovider(this.component.properties, result.dataprovider, _updateName, this.currentDataproviderProperty);
             }						
         }
-    }*/
+    }
+
+    getGridConvertedFormField(rows, gridField){
+        for (var i = 0; i < rows.length; i++) {
+            for (var j = 0; j < rows[i].columns.length; j++) {
+                var _column = rows[i].columns[j]; 
+                for (var k = 0; k < _column.formgroups.length; k++) {
+                    var _fgroup = _column.formgroups[k];
+                    for (var l = 0; l < _fgroup.smallcolumns.length; l++) {
+                        var _scol = _fgroup.smallcolumns[l];
+                        for (var m = 0; m < _scol.fields.length; m++) {
+                            var _field = _scol.fields[m];	
+                            if(_field.uniqueID === gridField.uniqueID)
+                                return _field;
+                        
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     setAddComponentFieldValues(result) {
         for (var i = 0; i < result.properties.length; i++) {
@@ -759,23 +786,23 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         }
     }
 
-    /*this.api.gridFoundsetProperties(relation) {
+    public setGridFoundsetProperties(relation) {
         for (var i = 0; i < this.component.properties.length; i++) {
             if (this.component.properties[i].name === 'foundset')
                 this.component.properties[i].value = relation;
         }
     }
 
-    this.api.addFields(result) {
+    public addFields(result) {
         if (result) {
             this.allFields = [];
             if (result.length > 0) {
                 this.allFields = result;
             }
 
-            initializeFormFields();
+            this.initializeFormFields();
         }
-    }*/
+    }
 
     copyRow(){
         if(this.component.fieldType === 'row'){
@@ -798,13 +825,13 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         this.initFilteredFields(null);
     }
 
-    /*this.api.setFormName(result) {
+    public setFormName(result) {
         if (result) {
             this.name = result;
         }
     }
 
-    this.api.loadJSONModel(result) {
+    public loadJSONModel(result) {
         if(this.tabSequenceMode){
             this.maxTabsequence = 0;
             // switch off tabSequenceMode or it will be loaded when the form gets activated again in design mode.
@@ -817,7 +844,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             if (result.datasource && result.datasource_mode) {
                 this.name = result.name;
                 this.formname = result.formname;
-                initializeFormFields();
+                this.initializeFormFields();
             }
             // a form can be created by Custom View wizard, then there are no rows or fields yet
             else if (result.name) {
@@ -840,43 +867,23 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                     this.startFromId = result.startFromId;
                     this.startFromName = result.startFromName;
                     
-                    getGridConvertedFormField(rows, gridField){
-                        for (var i = 0; i < rows.length; i++) {
-                            for (var j = 0; j < rows[i].columns.length; j++) {
-                                var _column = rows[i].columns[j]; 
-                                for (var k = 0; k < _column.formgroups.length; k++) {
-                                    var _fgroup = _column.formgroups[k];
-                                    for (var l = 0; l < _fgroup.smallcolumns.length; l++) {
-                                        var _scol = _fgroup.smallcolumns[l];
-                                        for (var m = 0; m < _scol.fields.length; m++) {
-                                            var _field = _scol.fields[m];	
-                                            if(_field.uniqueID === gridField.uniqueID)
-                                                return _field;
-                                        
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
                     this.getProgramFormFields(this.name, result.startFromId, result.startFromName).then(function(result) {									
                         this.formState = true;
                         if(result && result.convertedForm){
                             result.convertedForm = JSON.parse(result.convertedForm);
                             this.rows = result.convertedForm.rows;
-                            checkIfAllRowsHaveAllColumns();
+                            this.checkIfAllRowsHaveAllColumns();
                             if(result.convertedForm.gridFields){
                                 //todo: if result.containsGrids
                                 setTimeout(function(){
                                     for (var j = 0; j < result.convertedForm.gridFields.length; j++) {
                                         for (var i = 0; i < result.convertedForm.gridFields[j].columns.length; i++) {														
                                             // set all column properties for grid columns
-                                            this.component = getGridConvertedFormField(this.rows, result.convertedForm.gridFields[j]) //result.convertedForm.gridFields[j];
+                                            this.component = this.getGridConvertedFormField(this.rows, result.convertedForm.gridFields[j]) //result.convertedForm.gridFields[j];
                                             this.component.isNewField = true;
-                                            //this.component.columns[i].properties = _.cloneDeep(result.convertedForm.gridFields[j].columnProperties);
+                                            this.component.columns[i].properties = _.cloneDeep(result.convertedForm.gridFields[j].columnProperties);
                                             this.component.columns[i].isNewField = true;
-                                            this.api.saveGridColumn(true, this.component.columns[i], true)
+                                            this.saveGridColumn(true, this.component.columns[i], true);
                                         }												
                                     }
                                 }, 500)	
@@ -888,31 +895,31 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                             else this.allFields = [];
                                 
                             this.copiedJSONRows = _.cloneDeep(result.convertedForm.rows);
-                            initFilteredFields(null);
+                            this.initFilteredFields(null);
                         }
                         else{
                             this.allFields = result ? result.fields : [];
-                            initializeFormFields();		
+                            this.initializeFormFields();		
                             this.formState = true;
                         }
                         
                         
                     });
                 }
-                else initializeFormFields() // cancel clicked
+                else this.initializeFormFields() // cancel clicked
             } else {
                 if (result.form) {
                     var dbForm = JSON.parse(result.form);
                     if (dbForm) {
                         this.formState = false;
 
-                        if(!checkIfFormGroupStructure(dbForm.rows))
+                        if(!this.checkIfFormGroupStructure(dbForm.rows))
                         {
-                            dbForm.rows = convertToFormGroupStructure(dbForm.rows);
+                            dbForm.rows = this.convertToFormGroupStructure(dbForm.rows);
                         }
 
                         this.rows = dbForm.rows;
-                        checkIfAllRowsHaveAllColumns();
+                        this.checkIfAllRowsHaveAllColumns();
                         this.copiedJSONRows = _.cloneDeep(dbForm.rows);
                         this.name = dbForm.name;
                         this.allFields = dbForm.fields;
@@ -921,7 +928,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                     }
                 }
 
-                initFilteredFields(null);
+                this.initFilteredFields(null);
             }
             
             // set id's or reset them in case the old value needs to be removed
@@ -939,7 +946,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                 this.newFields = fields;
             });
         }
-    }*/
+    }
 
     checkIfAllRowsHaveAllColumns(){
         for (var i = 0; i < this.rows.length; i++) {
@@ -998,8 +1005,8 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         return _newRows;
     }
 
-    /*this.api.saveGridColumn(isNew, model, listDesignImport) {
-        var grid = $("#" + this.component.uniqueID).dxDataGrid("instance");
+    public saveGridColumn(isNew, model, listDesignImport) {
+        var grid; //$("#" + this.component.uniqueID).dxDataGrid("instance");
 
         if (isNew === "true" || isNew === true) { // isNew via API is not transferred as boolean?
             if (!this.component.columns)
@@ -1009,13 +1016,13 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                 model.headerText = model.dynamicAttributeText
             }
             
-            setFsDpName(model.properties, model.dataprovider);
-            setHeaderTextAndCaption(model.properties, model.headerText ? model.headerText : model.dataprovider);						
-            setDataprovider(model.properties, model.dataprovider, model.dynamicAttributeText ? model.dynamicAttributeText : null);
-            setVisible(model.properties);
+            this.setFsDpName(model.properties, model.dataprovider);
+            this.setHeaderTextAndCaption(model.properties, model.headerText ? model.headerText : model.dataprovider);						
+            this.setDataprovider(model.properties, model.dataprovider, model.dynamicAttributeText ? model.dynamicAttributeText : null);
+            this.setVisible(model.properties);
             
             var newColumn = {
-                dataField: getConvertedDataprovider(model.dataprovider),
+                dataField: this.getConvertedDataprovider(model.dataprovider),
                 caption: model.headerText ? model.headerText : model.dataprovider,
                 properties: model.properties,
                 dataprovider: model.dataprovider,
@@ -1046,7 +1053,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                 }
             };
         } else {
-            var convertedDP = getConvertedDataprovider(model.dataprovider);
+            var convertedDP = this.getConvertedDataprovider(model.dataprovider);
             this.gridColumnProperties.isDynamicAttribute = model.isDynamicAttribute ? model.isDynamicAttribute : false;
             this.gridColumnProperties.dynamicAttributeText = model.dynamicAttributeText ? model.dynamicAttributeText : null;
             // use the old datafield name to update to new values
@@ -1061,25 +1068,25 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         this.getStandaloneFormFields().then(function(fields) {
             this.newFields = fields;
         });
-    }*/
+    }
 
     getConvertedDataprovider(dataprovider){
         return (dataprovider.split('.').pop() + '_' + this.randomNumber()).replace(/-/g, "");
     }
     
-   /* this.api.saveTab(isNew, model) {
-        var grid = $("#" + this.component.uniqueID).dxDataGrid("instance");
+    public saveTab(isNew, model) {
+        var grid;// = $("#" + this.component.uniqueID).dxDataGrid("instance");
 
         if (isNew === "true" || isNew === true) { // isNew via API is not transferred as boolean?
             if (!this.component.columns)
                 this.component.columns = [];
             
-            setFsDpName(model.properties, model.dataprovider);
-            setVisible(model.properties);
-            setHeaderTextAndCaption(model.properties, model.headerText ? model.headerText : model.dataprovider);
+            this.setFsDpName(model.properties, model.dataprovider);
+            this.setVisible(model.properties);
+            this.setHeaderTextAndCaption(model.properties, model.headerText ? model.headerText : model.dataprovider);
 
             var newColumn = {
-                dataField: getConvertedDataprovider(model.dataprovider),
+                dataField: this.getConvertedDataprovider(model.dataprovider),
                 caption: model.headerText ? model.headerText : model.dataprovider,
                 properties: model.properties,
                 headerText: model.headerText ? model.headerText : model.dataprovider
@@ -1097,7 +1104,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                 }
             };
         } else {
-            var convertedDP = getConvertedDataprovider(model.dataprovider);
+            var convertedDP = this.getConvertedDataprovider(model.dataprovider);
             // use the old datafield name to update to new values
             grid.columnOption(this.gridColumnProperties.dataField, 'dataField', convertedDP)
             grid.columnOption(this.gridColumnProperties.dataField, 'caption', model.headerText ? model.headerText : model.dataprovider)
@@ -1105,7 +1112,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             this.gridColumnProperties.dataField = convertedDP;
             this.gridColumnProperties.caption = model.headerText ? model.headerText : model.dataprovider;
         }
-    }*/
+    }
 
     setFsDpName(properties, name) {
         for (var i = 0; i < properties.length; i++) {
@@ -1131,7 +1138,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             }
         }
     }
-    setDataprovider(properties, dpvalue, _updateName, _property) {
+    setDataprovider(properties, dpvalue, _updateName, _property?) {
         if(!_property){
             _property = {name: "dataprovider"};
         }
@@ -1151,24 +1158,24 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         return Math.floor(Math.random() * Math.floor(999999));
     }
 
-    /*this.api.valuelistProperties(object) {
+    public setValuelistProperties(object) {
         var loopThrough = 'component';
         if(this.column && this.component.fieldType === "grid"){
             loopThrough = 'column';
         }
         
-        for (var i = 0; i < $scope[loopThrough].properties.length; i++) {
+        /*for (var i = 0; i < $scope[loopThrough].properties.length; i++) {
             if ($scope[loopThrough].properties[i].name === 'valuelist') {
                 $scope[loopThrough].properties[i].value = object;
                 return;
             }
-        }	
+        }*/	
         
     }
 
-    this.api.i18nProperties(object) {
+    public setI18nProperties(object) {
         if(this.component.fieldType === "grid" && this.column){
-            var grid = $("#" + this.component.uniqueID).dxDataGrid("instance");						
+            var grid;// = $("#" + this.component.uniqueID).dxDataGrid("instance");						
             grid.columnOption(this.column.dataField, 'caption', object["key"])						
         }
         else if(this.component.fieldType === 'tabpanel' && this.tab){
@@ -1185,10 +1192,10 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         }
     }
 
-    this.api.eventProperties(result) {
+    public setEventProperties(result) {
         this.currentEvent.value = result.id;
         this.currentEvent.code = result.code;
-    }*/
+    }
 
     findSearchFilteredFields() {
         setTimeout(function() {
@@ -1206,7 +1213,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         var columnSpan = _.find(this.colspanOptions, { colspan: 1 });
         var column = { formgroups: [_.cloneDeep(this._dummyFormgroup)], styleclass: columnSpan.styleclass, fieldType: 'column' };
         row.columns.push(column);
-        //this.openSidebar(column, row);
+        this.openSidebar(column, row);
         this.checkIfRowCanAddColumns(row);
     }
 
@@ -1222,22 +1229,22 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         this.checkIfRowCanAddColumns(this.row);
     }
 
-    /*this.api.hideFormBuilder() {
+    /*public hideFormBuilder() {
         $("body").removeClass("background-white");
     }*/
 
-    /*this.api.saveForm(servoyDeveloperSave) {
+    public saveForm(servoyDeveloperSave) {
         if(this.tabSequenceMode){
             // switch off tabSequenceMode or it will be loaded when the form gets activated again in design mode.
             this.toggleTabSequenceMode();
         }
-        this.isFormEdited = !angular.equals(this.copiedJSONRows, this.rows);
-        this.jsEvent = { svyType: 'JSEvent' };
-        this.servoyDeveloperSave = servoyDeveloperSave;
+        //this.isFormEdited = !angular.equals(this.copiedJSONRows, this.rows);
+        var jsEvent = { svyType: 'JSEvent' };
+        //this.servoyDeveloperSave = servoyDeveloperSave;
         this.listDesignMode = this.listDesignMode;
 
         //TODO: refactor this, do not send entire model
-        this.onSaveForm(this.jsEvent, this).then(function(result) {
+        this.onSaveForm(jsEvent, this).then(function(result) {
             if(result){							
                 this.parent_view_id = result.parent_view_id;							
                 this.custom_view_id = result.custom_view_id;
@@ -1250,24 +1257,8 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         });
     }
 
-    this.api.enableDnd(value) {
-        if (value) {
-            this.sortableSidebar.disabled = false;
-            this.sortableColumns.disabled = false;
-            this.sortableFields.disabled = false;
-            this.sortableNewFields.disabled = false;
-            this.sortableRowsSidebar.disabled = false;
-        } else {
-            this.sortableSidebar.disabled = true;
-            this.sortableColumns.disabled = true;
-            this.sortableFields.disabled = true;
-            this.sortableNewFields.disabled = true;
-            this.sortableRowsSidebar.disabled = true;
-        }
-    }
-    this.api.enableDnd(false);
 
-    this.$watch('model.rows', function(newValue) {
+    /*this.$watch('model.rows', function(newValue) {
             if (this.formState === false) {
                 // loadJSONModel will initialize the model.rows causing this line to trigger
                 this.formState = true;
@@ -1275,9 +1266,9 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                 this.formStateChanged(true);
                 this.formState = null;
             }
-        }, true);
+        }, true);*/
 
-    this.api.toggleListDesignMode(custom_view_id, parent_view_id, grid) {
+    public toggleListDesignMode(custom_view_id, parent_view_id, grid) {
         this.formState = false;
         this.listDesignMode = true;
         this.rows = [];
@@ -1287,23 +1278,23 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         this.startFromId = grid.startFromId;
         grid.isNewField = true;
         if(custom_view_id){
-            if(!checkIfFormGroupStructure(grid.rows))
+            if(!this.checkIfFormGroupStructure(grid.rows))
             {
-                grid.rows = convertToFormGroupStructure(grid.rows);						
+                grid.rows = this.convertToFormGroupStructure(grid.rows);						
             }
             this.rows = grid.rows;
         }
         else{
             this.addRow(_.find(this.nrOfColumns, { amount: 1 }));
-            grid.uniqueID = getUniqueID()
+            grid.uniqueID = this.getUniqueID()
             this.rows[0].columns[0].formgroups[0].smallcolumns[0].fields.push(grid);	
             this.component = grid;
             
-            mapFoundsetToProperties(this.component);						
+            this.mapFoundsetToProperties(this.component);						
             setTimeout(function(){
                 for (var i = 0; i < grid.columns.length; i++) {
                     grid.columns[i].properties = _.cloneDeep(grid.columnProperties);
-                    this.api.saveGridColumn(true, grid.columns[i], true)
+                    this.saveGridColumn(true, grid.columns[i], true)
                 }
             }, 500)
         }
@@ -1311,7 +1302,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         this.getStandaloneFormFields().then(function(fields) {
             this.newFields = fields;
         });
-    }*/
+    }
     
     mapFoundsetToProperties(component) {
         for (var i = 0; i < component.properties.length; i++) {
@@ -1325,7 +1316,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     clearForm(){
         if(confirm("Are you sure you want to clear this form?")){
             for (var i = this.rows.length; i--;) {
-                //this.deleteContainer(this.rows[i]);
+                this.deleteContainer(this.rows[i]);
             }
             
             this.initializeFormFields();
@@ -1339,7 +1330,6 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         }
     }
     
-    maxTabsequence = 0;
     toggleTabSequenceMode(){										
         this.tabSequenceMode = !this.tabSequenceMode				
         
@@ -1552,7 +1542,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             });
     }*/
     
-    /*this.api.dashboardProperties(object){
+    /*public dashboardProperties(object){
         if(this.component.dashboard){
             removeCumulioDashboard(this.component.uniqueID);
         }
@@ -1586,11 +1576,11 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             {	
                 if(!prop.value)
                     return null;		
-                /*if(property === 'layout')			
+                if(property === 'layout')			
                 {
-                    return getConvertedWidthRatio(prop.value);
+                    return this.getConvertedWidthRatio(prop.value);
                 }
-                else */
+                else 
                 if(property.indexOf("_value") > -1)
                 {
                     var _valueToShow = prop.value.indexOf(".") > -1 ? prop.value.split(".").pop() : prop.value;
@@ -1654,19 +1644,19 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         this.showOriginalFormFieldsModal(this.name, this.startFromId, this.startFromName);
     }
 
-    /*this.api.addOriginalFormFields(fields){
+    public addOriginalFormFields(fields){
         this.allFields = this.allFields.concat(fields);
-        initFilteredFields();
+        this.initFilteredFields();
     }
 
-    this.api.programProperties(_program){				
+    public setProgramProperties(_program){				
         for (var i = 0; i < this.component.properties.length; i++) {
             if (this.component.properties[i].name === 'deeplink_program') {
                 this.component.properties[i].value = _program;
                 return;
             }					
         }
-    }*/
+    }
 
     toggleTabFieldsOpened(_tabIndex){
         this.showTabFieldsIndex === _tabIndex ? this.showTabFieldsIndex = -1 : this.showTabFieldsIndex = _tabIndex;
