@@ -1,6 +1,6 @@
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { DOCUMENT } from '@angular/common';
-import { Component, ChangeDetectorRef, Renderer2, Input, ElementRef, ChangeDetectionStrategy, ViewChild, Inject } from '@angular/core';
+import { Component, ChangeDetectorRef, Renderer2, Input, ElementRef, ChangeDetectionStrategy, ViewChild, Inject, SimpleChanges } from '@angular/core';
 import { ServoyBootstrapBasefield } from '../../bootstrapcomponents/bts_basefield';
 import * as _ from 'lodash';
 
@@ -19,6 +19,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     nrOfColumns = [{ label: 'One column', amount: 1, colspan: 12, styleclass: 'col-md-12' }, { label: 'Three columns', amount: 3, colspan: 4, styleclass: 'col-md-4' }, { label: 'Four columns', amount: 4, colspan: 3, styleclass: 'col-md-3' }, { label: 'Six columns', amount: 6, colspan: 2, styleclass: 'col-md-2' }, { label: 'Twelve columns', amount: 12, colspan: 1, styleclass: 'col-md-1' }];
     colspanOptions = [{ label: 'One', colspan: 1, styleclass: 'col-md-1' }, { label: 'Two', colspan: 2, styleclass: 'col-md-2' }, { label: 'Three', colspan: 3, styleclass: 'col-md-3' }, { label: 'Four', colspan: 4, styleclass: 'col-md-4' }, { label: 'Five', colspan: 5, styleclass: 'col-md-5' }, { label: 'Six', colspan: 6, styleclass: 'col-md-6' }, { label: 'Seven', colspan: 7, styleclass: 'col-md-7' }, { label: 'Eight', colspan: 8, styleclass: 'col-md-8' }, { label: 'Nine', colspan: 9, styleclass: 'col-md-9' }, { label: 'Ten', colspan: 10, styleclass: 'col-md-10' }, { label: 'Eleven', colspan: 11, styleclass: 'col-md-11' }, { label: 'Twelve', colspan: 12, styleclass: 'col-md-12' }];
 
+    @ViewChild('sortableRemovedFieldsList') sortableSBFieldsList;
+    @ViewChild('sortableNewFieldsList') sortableNewFieldsList;
+    @ViewChild('sortableFieldsList') sortableFieldsList;
+    @ViewChild('drawer') drawer;
+    fieldsConnectedTo = [];    
+
     svyMarkupId;
     rows = [];
     enabledImage;
@@ -35,6 +41,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     showTabFieldsIndex = -1;
     tabSequenceMode = false;
     model;
+    allFields;
     tabsWithFields;
     filteredTabFields;
     component;
@@ -59,9 +66,43 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     svyOnInit(){
         super.svyOnInit();
         console.log('formbuilder init');
+        this.result = JSON.parse(this.result);
+        if (this.result.rows) {
+            this.rows = this.result.rows;
+            this.name = this.result.name;
+            this.allFields = this.result.fields;
+            //checkIfAllRowsHaveAllColumns();
+            //$scope.copiedJSONRows = angular.copy(dbForm.rows);
+            //$scope.model.startFromName = dbForm.startFromName;
+            //$scope.model.startFromId = dbForm.startFromId;
+            this.setFieldsConnectedTo();
+        }
+        
+        this.initFilteredFields(null);
+    }
+    
+    setFieldsConnectedTo(){
+        let _newList = [];
+        let _classString = 'fields';
+        for (let rI = 0; rI < this.rows.length; rI++) {
+            for (let cI = 0; cI < this.rows[rI].columns.length; cI++) {
+                const col = this.rows[rI].columns[cI];
+                for (let fgI = 0; fgI < col.formgroups.length; fgI++) {
+                    const fg = col.formgroups[fgI];
+                    for (let scI = 0; scI < fg.smallcolumns.length; scI++) {
+                        _newList.push(_classString + '-' + rI + '-' + cI + '-' + fgI + '-' + scI);
+                    }
+                }
+            }
+        }
+        this.fieldsConnectedTo = _newList;
     }
 
-    drop(event: CdkDragDrop<string[]>) {
+    svyOnChanges(changes: SimpleChanges) {
+        console.log(changes);
+    }
+
+    drop(event: CdkDragDrop<any>) {
         if (event.previousContainer === event.container) {
           moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else {
@@ -100,10 +141,10 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
 	//this.getIsDeveloper();
 
     initFilteredFields(filter) {
-        var fields = this.model.fields;
+        var fields = this.allFields;
 
-        if (filter == null && this.model.searchValue.length > 0)
-            filter = this.model.searchValue;
+        if (filter == null && this.searchValue.length > 0)
+            filter = this.searchValue;
 
         if (filter != null) {
             fields = filter(fields, function(field) {
@@ -134,7 +175,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }
 
     removeFieldFromList(field) {
-        //this.model.fields = _.without(this.model.fields, field);
+        //this.allFields = _.without(this.allFields, field);
     }			
 
     deleteField(fields, field, index) {
@@ -142,7 +183,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             this.removeCumulioDashboard(field.uniqueID);
         }*/
         // add the deleted field back to the sidebar
-        this.model.fields.unshift(field);
+        this.allFields.unshift(field);
         fields.splice(index, 1);
         this.initFilteredFields(null);
     }
@@ -239,6 +280,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         open: false
     };
 
+    closeSidebar(event){
+        if(this.drawer['_animationState'] === "open" && (!event.target.className || event.target.className.indexOf('fa-cog') === -1)){
+            this.drawer.toggle();
+        }
+    }
+
     openSidebar(component, row?, rowcolumn?, formgroup?, smallcolumn?) {
         this.row = row;
         this.rowcolumn = rowcolumn;
@@ -254,6 +301,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             this.column = _.find(component.columns, {showColumnProperties: true})
         }
         
+        this.drawer.toggle();
         //this.openAside('right')
     }				
 
@@ -273,123 +321,93 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         }
     }
 
-    /*openAside(position) {
-        this.asideState = {
-            open: true,
-            position: position
-        };
+    tabProperties(isNew, tab){
+        //handlers.tabProperties(isNew, tab)
+    }
 
-        postClose() {
-            this.asideState.open = false;
+    programProperties(value){
+        //handlers.programProperties(property.value)
+    }
+
+    deleteContainer(container){
+        if(!container)
+            return null;
+        
+        this.moveAllFieldsToSidebar(container);
+
+        switch(container.fieldType)
+        {
+            case "row":
+                _.remove(this.model.rows, this.row);
+                break;
+            case "column":
+                _.remove(this.row.columns, this.rowcolumn);
+                this.row.hasDeletedColumns = true;
+                break;
+            case "form-group":
+                _.remove(this.rowcolumn.formgroups, this.formgroup);
+                break;
+            case "smallcolumn":
+                _.remove(this.formgroup.smallcolumns, this.smallcolumn);
+                break;						
         }
+        this.drawer.toggle();
+    }
 
-        $aside.open({
-            templateUrl: 'globtecdevexcomponents/FormBuilder/FormBuilderSidebar.html',
-            placement: position,
-            size: 'sm',
-            backdrop: true,
-            backdropClass: 'formbuilder_aside',
-            openedClass: 'formbuilder_aside',
-            scope: $scope,
-            controller: function($uibModalInstance) {
-                this.ok(e) {
-                    $uibModalInstance.close();
-                    e.stopPropagation();
-                };
+    moveAllFieldsToSidebar(container)
+    {
+        var _fields = [];
 
-                this.deleteContainer(container){
-                    if(!container)
-                        return null;
-                    
-                    moveAllFieldsToSidebar(container);
+        switch(container.fieldType)
+        {
+            case "row":
+                _fields = _fields.concat(this.getFieldsInRow(this.row));
+                break;
+            case "column":
+                _fields = _fields.concat(this.getFieldsInRowColumn(this.rowcolumn));
+                break;
+            case "form-group":
+                _fields = _fields.concat(this.getFieldsInFormGroup(this.formgroup));	
+                break;
+            case "smallcolumn":
+                _fields = _fields.concat(this.smallcolumn.fields);
+                break;						
+        }
+        this.allFields = this.allFields.concat(_fields);
+        this.initFilteredFields(null);
+    }
 
-                    switch(container.fieldType)
-                    {
-                        case "row":
-                            _.remove(this.model.rows, this.row);
-                            break;
-                        case "column":
-                            _.remove(this.row.columns, this.rowcolumn);
-                            this.row.hasDeletedColumns = true;
-                            break;
-                        case "form-group":
-                            _.remove(this.rowcolumn.formgroups, this.formgroup);
-                            break;
-                        case "smallcolumn":
-                            _.remove(this.formgroup.smallcolumns, this.smallcolumn);
-                            break;						
-                    }
-                    $uibModalInstance.close();
-                }
+    getFieldsInRow(row)
+    {
+        var _fields = [];
 
-                moveAllFieldsToSidebar(container)
-                {
-                    var _fields = [];
+        row.columns.forEach(col => {
+            _fields = _fields.concat(this.getFieldsInRowColumn(col));	
+        });
 
-                    switch(container.fieldType)
-                    {
-                        case "row":
-                            _fields = _fields.concat(getFieldsInRow(this.row));
-                            break;
-                        case "column":
-                            _fields = _fields.concat(getFieldsInRowColumn(this.rowcolumn));
-                            break;
-                        case "form-group":
-                            _fields = _fields.concat(getFieldsInFormGroup(this.formgroup));	
-                            break;
-                        case "smallcolumn":
-                            _fields = _fields.concat(this.smallcolumn.fields);
-                            break;						
-                    }
-                    this.model.fields = this.model.fields.concat(_fields);
-                    initFilteredFields(null);
-                }
+        return _fields;
+    }
 
-                getFieldsInRow(row)
-                {
-                    var _fields = [];
+    getFieldsInRowColumn(rowcolumn)
+    {
+        var _fields = [];
 
-                    _.forEach(row.columns, function(col)
-                    {
-                        _fields = _fields.concat(getFieldsInRowColumn(col));	
-                    })
+        rowcolumn.formgroups.forEach(col => {
+            _fields = _fields.concat(this.getFieldsInFormGroup(col));
+        });
 
-                    return _fields;
-                }
+        return _fields;
+    }
 
-                getFieldsInRowColumn(rowcolumn)
-                {
-                    var _fields = [];
-
-                    _.forEach(rowcolumn.formgroups, function(col)
-                    {
-                        _fields = _fields.concat(getFieldsInFormGroup(col));	
-                    })
-
-                    return _fields;
-                }
-
-                getFieldsInFormGroup(formgroup)
-                {
-                    var _fields = [];
-
-                    _.forEach(formgroup.smallcolumns, function(col)
-                    {
-                        _fields = _fields.concat(col.fields);	
-                    })
-
-                    return _fields;
-                }
-                
-                setTimeout(function() {
-                    $(".formbuilder_aside input").attr('autocomplete', 'off');
-                }, 200)
-            }
-        }).result.then(postClose, postClose);
-    }*/
+    getFieldsInFormGroup(formgroup)
+    {
+        var _fields = [];
+        formgroup.smallcolumns.forEach(col => {
+            _fields = _fields.concat(col.fields);	
+        });
+        return _fields;
+    }
     
-    
-
     openIncludedTabForm(tab) {
         this.loadTabForm(tab);
     }
@@ -722,9 +740,9 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
 
     this.api.addFields(result) {
         if (result) {
-            this.model.fields = [];
+            this.allFields = [];
             if (result.length > 0) {
-                this.model.fields = result;
+                this.allFields = result;
             }
 
             initializeFormFields();
@@ -778,9 +796,9 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                 this.model.name = result.name;
                 this.model.formname = result.formname;
 
-                if (result.isNewForm || ((!this.model.fields || this.model.fields.length == 0) && result.custom_view_id)){
+                if (result.isNewForm || ((!this.allFields || this.allFields.length == 0) && result.custom_view_id)){
                     this.model.isNewForm = result.isNewForm;
-                    if((!this.model.fields || this.model.fields.length == 0) && result.custom_view_id){
+                    if((!this.allFields || this.allFields.length == 0) && result.custom_view_id){
                         if(!result.parent_view_id){
                             result.parent_view_id = result.custom_view_id;
                             result.custom_view_id = null;
@@ -837,15 +855,15 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                             }
                             
                             if(result.convertedForm){
-                                this.model.fields = result.convertedForm.fields ? result.convertedForm.fields : [];
+                                this.allFields = result.convertedForm.fields ? result.convertedForm.fields : [];
                             }
-                            else this.model.fields = [];
+                            else this.allFields = [];
                                 
                             this.copiedJSONRows = _.cloneDeep(result.convertedForm.rows);
                             initFilteredFields(null);
                         }
                         else{
-                            this.model.fields = result ? result.fields : [];
+                            this.allFields = result ? result.fields : [];
                             initializeFormFields();		
                             this.model.formState = true;
                         }
@@ -869,7 +887,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                         checkIfAllRowsHaveAllColumns();
                         this.copiedJSONRows = _.cloneDeep(dbForm.rows);
                         this.model.name = dbForm.name;
-                        this.model.fields = dbForm.fields;
+                        this.allFields = dbForm.fields;
                         this.model.startFromName = dbForm.startFromName;
                         this.model.startFromId = dbForm.startFromId;
                     }
@@ -1146,7 +1164,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
 
     findSearchFilteredFields() {
         setTimeout(function() {
-                this.initFilteredFields(this.model.searchValue);
+                this.initFilteredFields(this.searchValue);
             }, 500);
     }
     
@@ -1287,7 +1305,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     removeFieldFromSidebar(field, fields, index){
         if(confirm("Are you sure you want to delete the field '"+field.name+ "'? You will not be able to retrieve it if you save your changes.")){
             fields.splice(index, 1);
-            this.model.fields = _.reject(this.model.fields, field)
+            this.allFields = _.reject(this.allFields, field)
         }
     }
     
@@ -1425,11 +1443,11 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }
     
     updateFieldProperties(){
-        if(this.model.fields){
+        if(this.allFields){
             // As the entire form design is saved as a JSON in DB, we need to be able to update the JSON values of all field properties in case there are changes to field definitions 
-            for (var f = 0; f < this.model.fields.length; f++) {
-                var _newF = _.find(this.newFields, {fieldType: this.model.fields[f].fieldType});
-                this.updateFieldJSONValues(this.model.fields[f], _newF);
+            for (var f = 0; f < this.allFields.length; f++) {
+                var _newF = _.find(this.newFields, {fieldType: this.allFields[f].fieldType});
+                this.updateFieldJSONValues(this.allFields[f], _newF);
             }	
         }
         
@@ -1571,7 +1589,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         return "";
     }
     
-    styleClassChanged()
+    styleClassChanged(component?)
     {
         if(this.component.fieldType === 'smallcolumn')
         {
@@ -1607,7 +1625,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }
 
     /*this.api.addOriginalFormFields(fields){
-        this.model.fields = this.model.fields.concat(fields);
+        this.allFields = this.allFields.concat(fields);
         initFilteredFields();
     }
 

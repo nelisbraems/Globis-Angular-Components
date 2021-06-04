@@ -11,6 +11,7 @@ import { GlobisCheckBox } from './CheckBox/CheckBox';
 import { GlobisFormBuilder } from './FormBuilder/FormBuilder';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { GlobisLabel } from './Label/Label';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 @NgModule({
     declarations: [
@@ -29,7 +30,8 @@ import { GlobisLabel } from './Label/Label';
       DxTextBoxModule,
       DxButtonModule,
       DxCheckBoxModule,
-      DragDropModule
+      DragDropModule,
+      MatSidenavModule
     ],
     exports: [
       GlobisLabel,
