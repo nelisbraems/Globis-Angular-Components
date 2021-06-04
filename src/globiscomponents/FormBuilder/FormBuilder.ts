@@ -338,7 +338,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         switch(container.fieldType)
         {
             case "row":
-                _.remove(this.model.rows, this.row);
+                _.remove(this.rows, this.row);
                 break;
             case "column":
                 _.remove(this.row.columns, this.rowcolumn);
@@ -753,7 +753,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
         if(this.component.fieldType === 'row'){
             var _rowCopy = _.cloneDeep(this.component);
             this.removeFields(_rowCopy);
-            this.model.rows.push(_rowCopy);
+            this.rows.push(_rowCopy);
         }
     }
     
@@ -765,7 +765,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
 
     initializeFormFields() {
         this.model.formState = null;
-        this.model.rows = [];
+        this.rows = [];
         this.addRow(_.find(this.nrOfColumns, { amount: 3 }));
         this.initFilteredFields(null);
     }
@@ -836,7 +836,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                         this.model.formState = true;
                         if(result && result.convertedForm){
                             result.convertedForm = JSON.parse(result.convertedForm);
-                            this.model.rows = result.convertedForm.rows;
+                            this.rows = result.convertedForm.rows;
                             checkIfAllRowsHaveAllColumns();
                             if(result.convertedForm.gridFields){
                                 //todo: if result.containsGrids
@@ -844,7 +844,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                                     for (var j = 0; j < result.convertedForm.gridFields.length; j++) {
                                         for (var i = 0; i < result.convertedForm.gridFields[j].columns.length; i++) {														
                                             // set all column properties for grid columns
-                                            this.component = getGridConvertedFormField(this.model.rows, result.convertedForm.gridFields[j]) //result.convertedForm.gridFields[j];
+                                            this.component = getGridConvertedFormField(this.rows, result.convertedForm.gridFields[j]) //result.convertedForm.gridFields[j];
                                             this.component.isNewField = true;
                                             //this.component.columns[i].properties = _.cloneDeep(result.convertedForm.gridFields[j].columnProperties);
                                             this.component.columns[i].isNewField = true;
@@ -883,7 +883,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
                             dbForm.rows = convertToFormGroupStructure(dbForm.rows);
                         }
 
-                        this.model.rows = dbForm.rows;
+                        this.rows = dbForm.rows;
                         checkIfAllRowsHaveAllColumns();
                         this.copiedJSONRows = _.cloneDeep(dbForm.rows);
                         this.model.name = dbForm.name;
@@ -914,8 +914,8 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }*/
 
     checkIfAllRowsHaveAllColumns(){
-        for (var i = 0; i < this.model.rows.length; i++) {
-            this.checkIfRowCanAddColumns(this.model.rows[i]);
+        for (var i = 0; i < this.rows.length; i++) {
+            this.checkIfRowCanAddColumns(this.rows[i]);
         }				
     }
 
@@ -1203,7 +1203,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             // switch off tabSequenceMode or it will be loaded when the form gets activated again in design mode.
             this.toggleTabSequenceMode();
         }
-        this.model.isFormEdited = !angular.equals(this.copiedJSONRows, this.model.rows);
+        this.model.isFormEdited = !angular.equals(this.copiedJSONRows, this.rows);
         this.model.jsEvent = { svyType: 'JSEvent' };
         this.model.servoyDeveloperSave = servoyDeveloperSave;
         this.model.listDesignMode = this.listDesignMode;
@@ -1214,7 +1214,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             }
                 
             this.model.isNewForm = false;
-            this.copiedJSONRows = _.cloneDeep(this.model.rows);
+            this.copiedJSONRows = _.cloneDeep(this.rows);
             this.handlers.formStateChanged(false);
             this.model.formState = true
         });
@@ -1250,7 +1250,7 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     this.api.toggleListDesignMode(custom_view_id, parent_view_id, grid) {
         this.model.formState = false;
         this.listDesignMode = true;
-        this.model.rows = [];
+        this.rows = [];
         this.model.parent_view_id = parent_view_id;
         this.model.custom_view_id = custom_view_id;
         this.model.startFromName = grid.startFromName;
@@ -1261,12 +1261,12 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             {
                 grid.rows = convertToFormGroupStructure(grid.rows);						
             }
-            this.model.rows = grid.rows;
+            this.rows = grid.rows;
         }
         else{
             this.addRow(_.find(this.nrOfColumns, { amount: 1 }));
             grid.uniqueID = getUniqueID()
-            this.model.rows[0].columns[0].formgroups[0].smallcolumns[0].fields.push(grid);	
+            this.rows[0].columns[0].formgroups[0].smallcolumns[0].fields.push(grid);	
             this.component = grid;
             
             mapFoundsetToProperties(this.component);						
@@ -1294,8 +1294,8 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     
     clearForm(){
         if(confirm("Are you sure you want to clear this form?")){
-            for (var i = this.model.rows.length; i--;) {
-                //this.deleteContainer(this.model.rows[i]);
+            for (var i = this.rows.length; i--;) {
+                //this.deleteContainer(this.rows[i]);
             }
             
             this.initializeFormFields();
@@ -1320,9 +1320,9 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }
     
     initializeTabSeqProperties(){
-        for (var i = 0; i < this.model.rows.length; i++) {
-            for (var j = 0; j < this.model.rows[i].columns.length; j++) {
-                var _column = this.model.rows[i].columns[j]; 
+        for (var i = 0; i < this.rows.length; i++) {
+            for (var j = 0; j < this.rows[i].columns.length; j++) {
+                var _column = this.rows[i].columns[j]; 
                 for (var k = 0; k < _column.formgroups.length; k++) {
                     var _fgroup = _column.formgroups[k];
                     for (var l = 0; l < _fgroup.smallcolumns.length; l++) {
@@ -1371,9 +1371,9 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     resetTabsequence(){
         if(confirm("Are you sure you wish to reset the tabsequence value for all fields on the form?")){
             this.maxTabsequence = 0;
-            for (var i = 0; i < this.model.rows.length; i++) {
-                for (var j = 0; j < this.model.rows[i].columns.length; j++) {
-                    var _column = this.model.rows[i].columns[j]; 
+            for (var i = 0; i < this.rows.length; i++) {
+                for (var j = 0; j < this.rows[i].columns.length; j++) {
+                    var _column = this.rows[i].columns[j]; 
                     for (var k = 0; k < _column.formgroups.length; k++) {
                         var _fgroup = _column.formgroups[k];
                         for (var l = 0; l < _fgroup.smallcolumns.length; l++) {
@@ -1416,9 +1416,9 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
     }
     
     updateConsecutiveTabsequences(field){
-        for (var i = 0; i < this.model.rows.length; i++) {
-            for (var j = 0; j < this.model.rows[i].columns.length; j++) {
-                var _column = this.model.rows[i].columns[j]; 
+        for (var i = 0; i < this.rows.length; i++) {
+            for (var j = 0; j < this.rows[i].columns.length; j++) {
+                var _column = this.rows[i].columns[j]; 
                 for (var k = 0; k < _column.formgroups.length; k++) {
                     var _fgroup = _column.formgroups[k];
                     for (var l = 0; l < _fgroup.smallcolumns.length; l++) {
@@ -1451,9 +1451,9 @@ export class GlobisFormBuilder extends ServoyBootstrapBasefield<HTMLDivElement> 
             }	
         }
         
-        for (var i = 0; i < this.model.rows.length; i++) {
-            for (var j = 0; j < this.model.rows[i].columns.length; j++) {
-                var _column = this.model.rows[i].columns[j]; 
+        for (var i = 0; i < this.rows.length; i++) {
+            for (var j = 0; j < this.rows[i].columns.length; j++) {
+                var _column = this.rows[i].columns[j]; 
                 for (var k = 0; k < _column.formgroups.length; k++) {
                     var _fgroup = _column.formgroups[k];
                     for (var l = 0; l < _fgroup.smallcolumns.length; l++) {

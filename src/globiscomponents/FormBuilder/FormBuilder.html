@@ -36,132 +36,132 @@
                 <label>Field type: {{component.fieldType}}</label>
               </div>
             </div>
-            <div *ngFor="let property of component.properties; trackBy: trackByIndex;let $index = index">
-              <div ng-switch="property.type">
-                <div ng-switch-when="name">
+            <div *ngFor="let prop of component.properties; trackBy: trackByIndex;let $index = index">
+              <div [ngSwitch]="prop.type">              
+                <div *ngSwitchCase="'name'">
                   <div class="formbuilder_form-group">
-                    <label>{{property.name}}</label>
-                    <input [(ngModel)]="property.value" (blur)="updateFieldName(property)" class="form-control"
-                      [disabled]="property.disabled && !component.isNewField && !isDeveloper">
+                    <label>{{prop.name}}</label>
+                    <input [(ngModel)]="prop.value" (blur)="updateFieldName(prop)" class="form-control"
+                      [disabled]="prop.disabled && !component.isNewField && !isDeveloper">
                   </div>
                 </div>
-                <div ng-switch-when="boolean">
+                <div *ngSwitchCase="'boolean'">
                   <div class="custom-control custom-checkbox">
-                    <input type="checkbox" [(ngModel)]="property.value" (change)="updateCheckboxProperties(property)"
+                    <input type="checkbox" [(ngModel)]="prop.value" (change)="updateCheckboxProperties(prop)"
                       class="custom-control-input"
-                      [disabled]="property.disabled && !component.isNewField && !isDeveloper">
-                    <label class="custom-control-label">{{property.name}}</label>
+                      [disabled]="prop.disabled && !component.isNewField && !isDeveloper">
+                    <label class="custom-control-label">{{prop.name}}</label>
                   </div>
                 </div>
-                <div ng-switch-when="dataprovider">
+                <div *ngSwitchCase="'dataprovider'">
                   <div class="input-group addgridcolumn">
-                    <label>{{property.name}}</label>
-                    <input *ngIf="!component.isDynamicAttribute" [(ngModel)]="property.value" class="form-control"
-                      (change)="updateDataprovider(property)"
-                      [disabled]="property.disabled && !component.isNewField && !isDeveloper">
+                    <label>{{prop.name}}</label>
+                    <input *ngIf="!component.isDynamicAttribute" [(ngModel)]="prop.value" class="form-control"
+                      (change)="updateDataprovider(prop)"
+                      [disabled]="prop.disabled && !component.isNewField && !isDeveloper">
                     <input *ngIf="component.isDynamicAttribute" [(ngModel)]="component.dynamicAttributeText"
                       class="form-control" disabled>
                     <div class="input-group-append">
-                      <button [disabled]="property.disabled && !component.isNewField && !isDeveloper"
+                      <button [disabled]="prop.disabled && !component.isNewField && !isDeveloper"
                         class="btn inputgroup-btn" type="button"
-                        (click)="showDataproviderProperties(component, property, component.properties, false)"
+                        (click)="showDataproviderProperties(component, prop,component.properties, false)"
                         title="Select dataprovider"><em class="fa fa-search"></em></button>
                     </div>
                   </div>
                 </div>
-                <div ng-switch-when="text">
+                <div *ngSwitchCase="'text'">
                   <div class="formbuilder_form-group">
-                    <label>{{property.name}}</label>
-                    <input [(ngModel)]="property.value" (blur)="updateTextProperties(property)" class="form-control"
-                      [disabled]="property.disabled && !component.isNewField && !isDeveloper">
+                    <label>{{prop.name}}</label>
+                    <input [(ngModel)]="prop.value" (blur)="updateTextProperties(prop)" class="form-control"
+                      [disabled]="prop.disabled && !component.isNewField && !isDeveloper">
                   </div>
                 </div>
-                <div ng-switch-when="css">
+                <div *ngSwitchCase="'css'">
                   <div class="formbuilder_form-group">
-                    <label>{{property.name}}</label>
-                    <input [(ngModel)]="property.value" (blur)="updateCSSProperties(property)" class="form-control">
+                    <label>{{prop.name}}</label>
+                    <input [(ngModel)]="prop.value" (blur)="updateCSSProperties(prop)" class="form-control">
                   </div>
                 </div>
-                <div ng-switch-when="dropdown">
+                <div *ngSwitchCase="'dropdown'">
                   <div class="formbuilder_form-group">
-                    <label>{{property.name}}</label>
+                    <label>{{prop.name}}</label>
                     <div class="input-group flex-wrapper">
-                      <select (change)="updateDropdownProperties(property)" class="form-control"
-                        [(ngModel)]="property.value">
-                        <option *ngFor="let value of property.values">{{value}}</option>
+                      <select (change)="updateDropdownProperties(prop)" class="form-control"
+                        [(ngModel)]="prop.value">
+                        <option *ngFor="let value of prop.values">{{value}}</option>
                       </select>
 
                       <div class="input-group-append">
-                        <button class="btn" (click)="property.value = null" style="color: #317637">X</button>
+                        <button class="btn" (click)="prop.value = null" style="color: #317637">X</button>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div ng-switch-when="valuelist">
+                <div *ngSwitchCase="'valuelist'">
                   <div class="input-group addgridcolumn">
-                    <label>{{property.name}}</label>
-                    <input type="text" class="form-control" [(ngModel)]="property.value" placeholder="Select valuelist"
+                    <label>{{prop.name}}</label>
+                    <input type="text" class="form-control" [(ngModel)]="prop.value" placeholder="Select valuelist"
                       disabled>
                     <div class="input-group-append">
-                      <button class="btn inputgroup-btn" type="button" (click)="showValueListProperties(property.value)"
+                      <button class="btn inputgroup-btn" type="button" (click)="showValueListProperties(prop.value)"
                         title="Select valuelist"><em class="fa fa-search"></em></button>
                     </div>
                   </div>
                 </div>
-                <div ng-switch-when="i18n">
+                <div *ngSwitchCase="'i18n'">
                   <div class="input-group addgridcolumn">
-                    <label>{{property.name}}</label>
-                    <input type="text" class="form-control" [(ngModel)]="property.value"
-                      (blur)="i18nInputChanged(property)" placeholder="Select or type translation">
+                    <label>{{prop.name}}</label>
+                    <input type="text" class="form-control" [(ngModel)]="prop.value"
+                      (blur)="i18nInputChanged(prop)" placeholder="Select or type translation">
                     <div class="input-group-append">
-                      <button class="btn inputgroup-btn" type="button" (click)="showi18nProperties(property)"
+                      <button class="btn inputgroup-btn" type="button" (click)="showi18nProperties(prop)"
                         title="Select translation"><em class="fa fa-search"></em></button>
                     </div>
                   </div>
                 </div>
-                <div ng-switch-when="foundset">
+                <div *ngSwitchCase="'foundset'">
                   <div class="input-group addgridcolumn">
-                    <label>{{property.name}}</label>
-                    <input type="text" class="form-control" [(ngModel)]="property.value" disabled>
+                    <label>{{prop.name}}</label>
+                    <input type="text" class="form-control" [(ngModel)]="prop.value" disabled>
                     <div *ngIf="component.isNewField" class="input-group-append">
-                      <button class="btn inputgroup-btn" type="button" (click)="showFoundsetProperties(property)"><em
+                      <button class="btn inputgroup-btn" type="button" (click)="showFoundsetProperties(prop)"><em
                           class="fa fa-search"></em></button>
                     </div>
                   </div>
                 </div>
-                <div ng-switch-when="formula">
+                <div *ngSwitchCase="'formula'">
                   <div class="input-group addgridcolumn">
-                    <label>{{property.name}}</label>
-                    <input type="text" class="form-control" *ngIf="property.code" [(ngModel)]="property.code" disabled>
-                    <input type="text" class="form-control" *ngIf="!property.code" [(ngModel)]="property.value"
+                    <label>{{prop.name}}</label>
+                    <input type="text" class="form-control" *ngIf="prop.code" [(ngModel)]="prop.code" disabled>
+                    <input type="text" class="form-control" *ngIf="!prop.code" [(ngModel)]="prop.value"
                       disabled>
                     <div class="input-group-append">
-                      <button class="btn inputgroup-btn" type="button" (click)="showEventProperties(property)"
-                        [disabled]="property.disabled && !component.isNewField && !isDeveloper"
+                      <button class="btn inputgroup-btn" type="button" (click)="showEventProperties(prop)"
+                        [disabled]="prop.disabled && !component.isNewField && !isDeveloper"
                         title="Formula properties"><em class="fa fa-search"></em></button>
                     </div>
                   </div>
                 </div>
-                <div ng-switch-when="dashboard">
+                <div *ngSwitchCase="'dashboard'">
                   <div class="input-group addgridcolumn">
-                    <label>{{property.name}}</label>
-                    <input type="text" class="form-control" [(ngModel)]="property.dashboard_name"
+                    <label>{{prop.name}}</label>
+                    <input type="text" class="form-control" [(ngModel)]="prop.dashboard_name"
                       placeholder="Select a dashboard" disabled>
                     <div class="input-group-append">
-                      <button class="btn inputgroup-btn" type="button" (click)="showDashboardProperties(property)"
-                        [disabled]="property.disabled && !component.isNewField && !isDeveloper" title="Dashboard"><em
+                      <button class="btn inputgroup-btn" type="button" (click)="showDashboardProperties(prop)"
+                        [disabled]="prop.disabled && !component.isNewField && !isDeveloper" title="Dashboard"><em
                           class="fa fa-search"></em></button>
                     </div>
                   </div>
                 </div>
-                <div ng-switch-when="program">
+                <div *ngSwitchCase="'program'">
                   <div class="input-group addgridcolumn">
-                    <label>{{property.name}}</label>
-                    <input type="text" class="form-control" [(ngModel)]="property.value"
+                    <label>{{prop.name}}</label>
+                    <input type="text" class="form-control" [(ngModel)]="prop.value"
                       placeholder="Select or type program">
                     <div class="input-group-append">
                       <button class="btn inputgroup-btn" type="button"
-                        (click)="programProperties(property.value)" title="Select program"><em
+                        (click)="programProperties(prop.value)" title="Select program"><em
                           class="fa fa-search"></em></button>
                     </div>
                   </div>
@@ -292,80 +292,80 @@
               </div>
             </div>
             <div ng-class="column.gridColumnStyleclass">
-              <div ng-show="column.showColumnProperties" *ngFor="let property of column.properties; trackBy: trackByIndex;let $index = index">
-                <div ng-switch="property.type">
-                  <div ng-switch-when="boolean">
+              <div ng-show="column.showColumnProperties" *ngFor="let prop of column.properties; trackBy: trackByIndex;let $index = index">
+                <div [ngSwitch]="prop.type">
+                  <div *ngSwitchCase="'boolean'">
                     <div class="custom-control custom-checkbox">
-                      <input type="checkbox" [(ngModel)]="property.value" (change)="updateCheckboxProperties(property)"
+                      <input type="checkbox" [(ngModel)]="prop.value" (change)="updateCheckboxProperties(prop)"
                         class="custom-control-input"
-                        [disabled]="property.disabled && !component.isNewField && !isDeveloper">
-                      <label class="custom-control-label">{{property.name}}</label>
+                        [disabled]="prop.disabled && !component.isNewField && !isDeveloper">
+                      <label class="custom-control-label">{{prop.name}}</label>
                     </div>
                   </div>
-                  <div ng-switch-when="dataprovider">
+                  <div *ngSwitchCase="'dataprovider'">
                     <div class="input-group addgridcolumn">
-                      <label>{{property.name}}</label>
-                      <input [(ngModel)]="property.value" class="form-control" disabled>
+                      <label>{{prop.name}}</label>
+                      <input [(ngModel)]="prop.value" class="form-control" disabled>
                       <div class="input-group-append">
                         <button class="btn inputgroup-btn" type="button"
-                          (click)="showGridColumnDataprovider(column, property, column.properties, false)"
+                          (click)="showGridColumnDataprovider(column, prop,column.properties, false)"
                           title="Select dataprovider"><em class="fa fa-search"></em></button>
                       </div>
                     </div>
                   </div>
-                  <div ng-switch-when="text">
+                  <div *ngSwitchCase="'text'">
                     <div class="formbuilder_form-group">
-                      <label>{{property.name}}</label>
-                      <input [(ngModel)]="property.value" (blur)="updateTextProperties(property)" class="form-control"
-                        [disabled]="property.disabled && !component.isNewField && !isDeveloper">
+                      <label>{{prop.name}}</label>
+                      <input [(ngModel)]="prop.value" (blur)="updateTextProperties(prop)" class="form-control"
+                        [disabled]="prop.disabled && !component.isNewField && !isDeveloper">
                     </div>
                   </div>
-                  <div ng-switch-when="dropdown">
+                  <div *ngSwitchCase="'dropdown'">
                     <div class="formbuilder_form-group">
-                      <label>{{property.name}}</label>
+                      <label>{{prop.name}}</label>
                       <div class="input-group flex-wrapper">
-                        <select (change)="updateDropdownProperties(property)" class="form-control"
-                          [(ngModel)]="property.value">
-                          <option *ngFor="let value of property.values">{{value}}</option>
+                        <select (change)="updateDropdownProperties(prop)" class="form-control"
+                          [(ngModel)]="prop.value">
+                          <option *ngFor="let value of prop.values">{{value}}</option>
                         </select>
                         <div class="input-group-append">
-                          <button class="btn" (click)="property.value = null" style="color: #317637">X</button>
+                          <button class="btn" (click)="prop.value = null" style="color: #317637">X</button>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div ng-switch-when="valuelist">
+                  <div *ngSwitchCase="'valuelist'">
                     <div class="input-group addgridcolumn">
-                      <input type="text" class="form-control" [(ngModel)]="property.value"
+                      <input type="text" class="form-control" [(ngModel)]="prop.value"
                         placeholder="Select valuelist" disabled>
                       <div class="input-group-append">
                         <button class="btn inputgroup-btn" type="button"
-                          (click)="showValueListProperties(property.value)" title="Select valuelist"><em
+                          (click)="showValueListProperties(prop.value)" title="Select valuelist"><em
                             class="fa fa-search"></em></button>
                       </div>
                     </div>
                   </div>
-                  <div ng-switch-when="i18n">
+                  <div *ngSwitchCase="'i18n'">
                     <div class="input-group addgridcolumn">
-                      <label>{{property.name}}</label>
-                      <input type="text" class="form-control" [(ngModel)]="property.value"
-                        (blur)="i18nInputChanged(property)" placeholder="Select or type translation">
+                      <label>{{prop.name}}</label>
+                      <input type="text" class="form-control" [(ngModel)]="prop.value"
+                        (blur)="i18nInputChanged(prop)" placeholder="Select or type translation">
                       <div class="input-group-append">
-                        <button class="btn inputgroup-btn" type="button" (click)="showi18nProperties(property)"
+                        <button class="btn inputgroup-btn" type="button" (click)="showi18nProperties(prop)"
                           title="Select translation"><em class="fa fa-search"></em></button>
                       </div>
                     </div>
                   </div>
-                  <div ng-switch-when="formula">
+                  <div *ngSwitchCase="'formula'">
                     <div class="input-group addgridcolumn">
-                      <label>{{property.name}}</label>
-                      <input type="text" class="form-control" *ngIf="property.code" [(ngModel)]="property.code"
+                      <label>{{prop.name}}</label>
+                      <input type="text" class="form-control" *ngIf="prop.code" [(ngModel)]="prop.code"
                         disabled>
-                      <input type="text" class="form-control" *ngIf="!property.code" [(ngModel)]="property.value"
+                      <input type="text" class="form-control" *ngIf="!prop.code" [(ngModel)]="prop.value"
                         disabled>
                       <div class="input-group-append">
-                        <button class="btn inputgroup-btn" type="button" (click)="showEventProperties(property)"
-                          [disabled]="property.disabled && !component.isNewField && !isDeveloper"
+                        <button class="btn inputgroup-btn" type="button" (click)="showEventProperties(prop)"
+                          [disabled]="prop.disabled && !component.isNewField && !isDeveloper"
                           title="Formula properties"><em class="fa fa-search"></em></button>
                       </div>
                     </div>
